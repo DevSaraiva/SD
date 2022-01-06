@@ -1,3 +1,4 @@
+
 import java.io.Serializable;
 
 public class Flight implements Serializable {
@@ -20,5 +21,4 @@ public class Flight implements Serializable {
     public void setDestino(String destino) {
         this.destino = destino;
     }
-
 }
