@@ -43,7 +43,7 @@ public class Server {
         }
     }
 
-    
+
     public void loadFlights(String folder) throws IOException, ClassNotFoundException {
         File toRead = new File(folder + "/flights.txt");
         FileInputStream fis = new FileInputStream(toRead);
@@ -51,17 +51,15 @@ public class Server {
         this.flightsMap = (HashMap<String,Flight>) ois.readObject();
         ois.close();
         fis.close();
-
     }
 
     public void loadClients(String folder) throws IOException, ClassNotFoundException {
-        File toRead = new File(folder + "/flights.txt");
+        File toRead = new File(folder + "/client.txt");
         FileInputStream fis = new FileInputStream(toRead);
         ObjectInputStream ois = new ObjectInputStream(fis);
         this.clientMap = (HashMap<String,Client>) ois.readObject();
         ois.close();
         fis.close();
-
     }
 
 
