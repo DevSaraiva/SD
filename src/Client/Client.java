@@ -16,11 +16,11 @@ public class Client {
                     + "2) Efectuar Login como Utilizador.\n"
                     + "3) Efectuar Login como Administrador.\n"
                     + "\n"
-                    + "0) Sair.");
+                    + "0) Sair.\n");
 
             int optionAuthenticated = -1;
             while (optionAuthenticated == -1) { // enquanto a opcao introduzida for invalida
-                System.out.println("Insira o valor correspondente à operação desejada: \n");
+                System.out.println("\nInsira o valor correspondente à operação desejada: \n");
                 optionAuthenticated = readOptionInt(3, stdin);
             }
             switch (optionAuthenticated) {
@@ -37,7 +37,7 @@ public class Client {
                     /*
                      * if (verificaLoginUtilizador(username,password)) {
                      * // meter print a dizeer que login foi feito com sucesso ????
-                     * optionAuthenticated = true;
+                     * authenticated = true;
                      * typeUser = "user";
                      * } else {
                      * System.out.println("\nO username e/ou password inseridas estão incorretas.\n"
@@ -56,7 +56,7 @@ public class Client {
                     /*
                      * if (verificaLoginAdmin(username,password)) {
                      * // meter print a dizeer que login foi feito com sucesso ????
-                     * optionAuthenticated = true;
+                     * authenticated = true;
                      * typeUser = "admin";
                      * } else {
                      * System.out.println("\nO username e/ou password inseridas estão incorretas.\n"
@@ -73,29 +73,28 @@ public class Client {
             System.out.print("\n***Reserva de Voos***\n\n");
             int option = -1;
             if (typeUser.compareTo("admin") == 0) {
-                System.out.println("Insira o valor correspondente à operação desejada: "
+                System.out.println("Insira o valor correspondente à operação desejada: \n"
                         + "1) Inserir informação sobre voos , introduzindo Origem, Destino e Capacidade\n"
                         + "2) Encerramento de um dia, impedindo novas reservas e cancelamentos de reservas para esse mesmo dia\n"
                         + "\n"
-                        + "0) Sair.");
+                        + "0) Sair.\n");
 
                 while (option == -1) { // enquanto a opcao introduzida for invalida
-                    System.out.println("Insira o valor correspondente à operação desejada: \n");
+                    System.out.println("\nInsira o valor correspondente à operação desejada: \n");
                     option = readOptionInt(2, stdin);
                 }
 
             } else { // typeUser == "user"
-                System.out.println("Insira o valor correspondente à operação desejada: "
-                        + "1) Reservar viagem, indicando o percurso completo com todas as escalas e um intervalo de datas possíveis, deixando ao "
-                        +
-                        "serviço a escolha de uma data em que a viagem seja possível\n"
+                System.out.println("Insira o valor correspondente à operação desejada: \n"
+                        + "1) Reservar viagem, indicando o percurso completo com todas as escalas e um intervalo de datas possíveis, deixando ao \n"
+                        +  "serviço a escolha de uma data em que a viagem seja possível\n"
                         + "2) Cancelar reserva de uma viagem, indicando o código de reserva \n"
                         + "3) Oter lista de todas os voos existentes (lista de pares origem → destino) \n"
                         + "\n"
-                        + "0) Sair.");
+                        + "0) Sair.\n");
 
                 while (option == -1) { // enquanto a opcao introduzida for invalida
-                    System.out.println("Insira o valor correspondente à operação desejada: \n");
+                    System.out.println("\nInsira o valor correspondente à operação desejada: \n");
                     option = readOptionInt(3, stdin);
                 }
                 option = option + 2; // passa a ser opcoes 3 4 5
