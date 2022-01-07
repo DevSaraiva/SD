@@ -1,16 +1,20 @@
 
 import java.util.List;
 import java.io.*;
+import java.net.ServerSocket;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Server {
+
+    ServerSocket ss;
     private Map<String, List<Flight>> flightsMap;
     private Map<LocalDate, Boolean> closeSchedule;
     private Map<String, Account> accountsMap;
 
     public Server() {
+
         this.flightsMap = new HashMap<>();
         this.accountsMap = new HashMap<>();
 
