@@ -33,6 +33,14 @@ public class Server {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        try {
+            this.ss = new ServerSocket(8888);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
     }
 
     public void loadData(String pasta) throws IOException, ClassNotFoundException {
@@ -95,6 +103,29 @@ public class Server {
         oos.flush();
         oos.close();
         fos.close();
+
+    }
+
+    public static void main(String[] args) {
+
+        Server server = new Server();
+
+        try {
+
+            boolean running = true;
+
+            while (running) {
+
+                ClientHandler ch = new ClientHandler(server.ss.accept());
+                Thread t = new Thread(ch);
+                t.start();
+            }
+
+            server.ss.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
