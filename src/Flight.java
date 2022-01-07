@@ -1,24 +1,19 @@
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.Map;
 
 public class Flight implements Serializable {
 
-    String destino;
-    int capacidade;
+    String destiny;
+    int capacity;
+    Map<LocalDate, Integer> occupations;
 
     public String getDestino() {
-        return destino;
+        return destiny;
     }
 
     public int getCapacidade() {
-        return capacidade;
-    }
-
-    public void setCapacidade(int capacidade) {
-        this.capacidade = capacidade;
-    }
-
-    public void setDestino(String destino) {
-        this.destino = destino;
+        return capacity;
     }
 }

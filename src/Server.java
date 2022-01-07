@@ -1,11 +1,13 @@
 
 import java.util.List;
 import java.io.*;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Server {
     private Map<String, List<Flight>> flightsMap;
+    private Map<LocalDate, Boolean> closeSchedule;
     private Map<String, Account> accountsMap;
 
     public Server() {
@@ -54,8 +56,8 @@ public class Server {
         this.flightsMap = (HashMap<String, List<Flight>>) ois.readObject();
         ois.close();
         fis.close();
-    }
 
+    }
 
     public void loadAccounts(String folder) throws IOException, ClassNotFoundException {
         File toRead = new File(folder + "/accounts.txt");
@@ -64,6 +66,7 @@ public class Server {
         this.accountsMap = (HashMap<String, Account>) ois.readObject();
         ois.close();
         fis.close();
+
     }
 
     public void saveFlights(String folder) throws IOException {
