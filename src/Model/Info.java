@@ -10,10 +10,11 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Info {
 
-    private Map<String, List<Flight>> flightsMap;
+    private Map<String, List<Flight>> flightsMap;   //key is the origin; value is the list of the flights with departure from that origin
     private Map<LocalDate, Boolean> closedScheduleMap;
     private Map<String, Account> accountsMap;
 
@@ -138,5 +139,6 @@ public class Info {
         oos.close();
         fos.close();
     }
+
 
 }
