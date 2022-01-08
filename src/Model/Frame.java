@@ -1,18 +1,18 @@
 package Model;
 
-import java.util.List;
-
 public class Frame {
 
     public enum Tag {
-        QUIT, LOGIN, SIGNUP, LOGOUT,;
+        LOGIN, SIGNUP, LOGOUT;
     }
 
-    public final Tag tag; // identifica da frame
-    public final List<byte[]> data; // list das várias infos a enviar de forma agnóstica
+    public final Tag tag;
+    public String username;
+    public final byte[] data;
 
-    public Frame(Tag tagG, List<byte[]> dataG) {
+    public Frame(Tag tagG, String username, byte[] dataG) {
         tag = tagG;
+        this.username = username;
         data = dataG;
     }
 }

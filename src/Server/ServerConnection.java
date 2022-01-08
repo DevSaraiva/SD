@@ -1,13 +1,7 @@
 package Server;
 
-package Server;
+import java.io.IOException;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import Exceptions.*;
 import Model.*;
 
 public class ServerConnection implements Runnable {
@@ -26,30 +20,55 @@ public class ServerConnection implements Runnable {
     }
 
     @Override
+
     public void run() {
-        try {
-            while (this.online) {
-                Frame command = this.tC.receive();
-                List<byte[]> data = new ArrayList<>(); // data a enviar no frame de resposta
-                try {
-                    switch (command.tag) {
-                        case SIGNUP -> signup(command.data);
-                        case LOGIN -> login(command.data);
-                        case LOGOUT -> logout();
 
-                    }
-              
+        while (this.online) {
+            Frame frame;
+
+            try {
+                frame = this.tC.receive();
+                switch (frame.tag) {
+
+                    case SIGNUP:
+                        signup(frame);
+                        break;
+                    case LOGIN:
+                        login(frame);
+                        break;
+                    case LOGOUT:
+                        logout();
+                        break;
+                    default:
+                        break;
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+
         }
-    }
-
-    private void signup(List<byte[]> commandData) {
 
     }
 
-    private void login(List<byte[]> commandData) {
+    private void signup(Frame frame) {
+
+        String username = frame.username;
+        String password = new String(frame.data);
+        
+        System.out.println(username);
+        System.out.println(password);
+
+
+    }
+
+    private void login(Frame frame) {
+
+        String username = frame.username;
+        String password = new String(frame.data);
+
+        System.out.println(username);
+        System.out.println(password);
 
     }
 

@@ -7,6 +7,7 @@ public class Account implements Serializable {
 
     String userID;
     String password;
+    boolean administrador;
     Map<String, Reserva> reservas;
 
 }

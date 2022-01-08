@@ -1,17 +1,28 @@
 package Client;
 
 import java.net.*;
+
+import Model.Frame;
+import Model.Frame.Tag;
+import Server.TaggedConnection;
+
 import java.io.*;
 
 public class Client {
 
     public static void main(String[] args) throws Exception {
-        String typeUser = "";
+
+        Socket s = new Socket("localhost", 8888);
+        Demultiplexer dm = new Demultiplexer(new TaggedConnection(s));
+
+        boolean admin = false;
 
         BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 
         boolean authenticated = false;
+
         while (!authenticated) {
+
             System.out.print("\n***Reserva de Voos***\n"
                     + "\n"
                     + "1) Efectuar Registo como Utilizador.\n"
@@ -23,50 +34,63 @@ public class Client {
             int optionAuthenticated = -1;
             while (optionAuthenticated == -1) { // enquanto a opcao introduzida for invalida
                 System.out.println("\nInsira o valor correspondente à operação desejada: \n");
-                optionAuthenticated = readOptionInt(3, stdin);
+                optionAuthenticated = readOptionInt(2, stdin);
             }
+            String username = null;
+            String password = null;
+            Frame fs = null;
+            String res = null;
+
+
             switch (optionAuthenticated) {
                 case 1:
-                    // caso de efectuar registo
+                    // caso de SIGNUP Utilizador
+                    System.out.print("\nIntroduza o username\n");
+                    username = stdin.readLine();
+                    System.out.print("\nIntroduza o password\n");
+                    password = stdin.readLine();
+
+
+                    fs = new Frame(Tag.SIGNUP, username, password.getBytes());
+                    dm.send(fs);
+
+                    res = new String(dm.receive(Tag.SIGNUP));
+
+                    if(res.equals("REGISTADO")){
+                        System.out.println("Conta Criada com sucesso.");
+                        authenticated = true;
+                    }else{
+                        System.out.println("O username já existe.");
+                    }
+
                     break;
 
                 case 2:
                     // caso de login Utilizador
                     System.out.print("\nIntroduza o username\n");
-                    String username = stdin.readLine();
-                    System.out.print("\nIntroduza o password\n");
-                    String password = stdin.readLine();
-                    /*
-                     * if (verificaLoginUtilizador(username,password)) {
-                     * // meter print a dizeer que login foi feito com sucesso ????
-                     * authenticated = true;
-                     * typeUser = "user";
-                     * } else {
-                     * System.out.println("\nO username e/ou password inseridas estão incorretas.\n"
-                     * +
-                     * "Tente novamente\n");
-                     * }
-                     */
-                    break;
-
-                case 3:
-                    // caso de login Administrador
-                    System.out.print("\nIntroduza o username\n");
                     username = stdin.readLine();
                     System.out.print("\nIntroduza o password\n");
                     password = stdin.readLine();
-                    /*
-                     * if (verificaLoginAdmin(username,password)) {
-                     * // meter print a dizeer que login foi feito com sucesso ????
-                     * authenticated = true;
-                     * typeUser = "admin";
-                     * } else {
-                     * System.out.println("\nO username e/ou password inseridas estão incorretas.\n"
-                     * +
-                     * "Tente novamente\n");
-                     * }
-                     */
+
+                    fs = new Frame(Tag.LOGIN, username, password.getBytes());
+                    dm.send(fs);
+
+                    res = new String(dm.receive(Tag.LOGIN));
+
+                    if(res.equals("USER")){
+                        authenticated = true;
+                        admin = false;
+                    }else{
+                        if(res.equals(("ADMIN"))){
+                            authenticated = true;
+                            admin = true;
+                        }else{
+                            System.out.println("Username e/ou Palavra-Passe errados");
+                        }
+                    }
+
                     break;
+
             }
         }
 
@@ -74,7 +98,7 @@ public class Client {
         while (!exit) {
             System.out.print("\n***Reserva de Voos***\n\n");
             int option = -1;
-            if (typeUser.compareTo("admin") == 0) {
+            if (admin) {
                 System.out.println("Insira o valor correspondente à operação desejada: \n"
                         + "1) Inserir informação sobre voos , introduzindo Origem, Destino e Capacidade\n"
                         + "2) Encerramento de um dia, impedindo novas reservas e cancelamentos de reservas para esse mesmo dia\n"
@@ -89,7 +113,7 @@ public class Client {
             } else { // typeUser == "user"
                 System.out.println("Insira o valor correspondente à operação desejada: \n"
                         + "1) Reservar viagem, indicando o percurso completo com todas as escalas e um intervalo de datas possíveis, deixando ao \n"
-                        +  "serviço a escolha de uma data em que a viagem seja possível\n"
+                        + "serviço a escolha de uma data em que a viagem seja possível\n"
                         + "2) Cancelar reserva de uma viagem, indicando o código de reserva \n"
                         + "3) Oter lista de todas os voos existentes (lista de pares origem → destino) \n"
                         + "\n"
@@ -137,8 +161,6 @@ public class Client {
     public static int readOptionInt(int opcoes, BufferedReader stdin) {
         int op = -1;
 
-        while (op == -1) {
-
             System.out.print("Opção: ");
             try {
                 String line = stdin.readLine();
@@ -150,45 +172,8 @@ public class Client {
                 System.out.println("Opção Inválida!!!");
                 op = -1;
             }
-        }
         return op;
 
-    }
-
-    public static void requestSender() {
-        String serverIP = "127.0.0.1"; // get server IP
-        int port = 8888; // get server port
-        System.out.println("connecting to " + serverIP + ":" + port);
-
-        try {
-            // buffer to read from console
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-            String lineFromConsole = reader.readLine(); // read line from console
-
-            while (!lineFromConsole.contentEquals("quit")) {
-                Socket client = new Socket(serverIP, port); // socket with the server ip and port
-
-                // write and read streams from socket
-                DataOutputStream out = new DataOutputStream(client.getOutputStream());
-                DataInputStream in = new DataInputStream(client.getInputStream());
-
-                out.writeUTF(lineFromConsole); // send to server
-                System.out.println(in.readUTF()); // read the response from server
-
-                in.close();
-
-                out.flush();
-                out.close();
-
-                client.close();
-
-                lineFromConsole = reader.readLine(); // read new line from console
-            }
-
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 }

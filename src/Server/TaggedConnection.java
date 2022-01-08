@@ -2,79 +2,60 @@ package Server;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
-
 import Model.Frame;
 import Model.Frame.Tag;
 
 public class TaggedConnection implements AutoCloseable {
     Socket socket;
-    ReentrantLock rlock = new ReentrantLock();
-    ReentrantLock wlock = new ReentrantLock();
-    DataOutputStream dO;
-    DataInputStream dI;
+    ReentrantLock rl = new ReentrantLock();
+    ReentrantLock wl = new ReentrantLock();
+    DataOutputStream dos;
+    DataInputStream dis;
 
     public TaggedConnection(Socket socket) throws IOException {
         this.socket = socket;
-        dO = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-        dI = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+        dos = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+        dis = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
     }
 
     public void send(Frame frame) throws IOException {
         try {
-            wlock.lock();
-            send(frame.tag, frame.data);
+            wl.lock();
+            this.dos.writeUTF(frame.tag.name());
+            this.dos.writeUTF(frame.username);
+            this.dos.writeInt(frame.data.length);
+            this.dos.write(frame.data);
+            this.dos.flush();
         } finally {
-            wlock.unlock();
+            wl.unlock();
         }
     }
 
-    public void send(Tag tag, List<byte[]> data) throws IOException {
-        int i = 0, s;
-        try {
-            wlock.lock();
-            dO.writeUTF(tag.name());
-            s = data == null ? 0 : data.size();
-            dO.writeInt(s);
-            while (i < s) { // escreve cada argumento na lista
-                dO.writeInt(data.get(i).length);
-                dO.write(data.get(i));
-                i++;
-            }
-            dO.flush();
-        } finally {
-            wlock.unlock();
-        }
+    public void send(Tag tag, String username, byte[] data) throws IOException {
+        this.send(new Frame(tag, username, data));
     }
 
     public Frame receive() throws IOException {
-        Tag t;
-        List<byte[]> b;
-        int toRead;
+        Tag tag;
+        byte[] data;
+        String username;
         try {
-            rlock.lock();
-            t = Tag.valueOf(dI.readUTF());
-            toRead = dI.readInt();
-            b = new ArrayList<>();
-            while (toRead > 0) { // lê cada argumento na lista
-                int size = dI.readInt();
-                byte[] n = new byte[size];
-                dI.readFully(n);
-                b.add(n);
-                toRead--;
-            }
+            rl.lock();
+            tag = Tag.valueOf(dis.readUTF());
+            username = dis.readUTF();
+            int n = this.dis.readInt();
+            data = new byte[n];
+            this.dis.readFully(data);
         } finally {
-            rlock.unlock();
+            rl.unlock();
         }
-        return new Frame(t, b);
+        return new Frame(tag, username, data);
     }
 
+    @Override
     public void close() throws IOException {
-        socket.shutdownInput();
-        socket.shutdownOutput();
-        socket.close();
+        this.dis.close();
+        this.dos.close();
     }
-
 }
