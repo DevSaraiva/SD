@@ -26,7 +26,7 @@ public class Account implements Serializable {
     }
 
     public boolean getAdministrador(){
-        return this.password;
+        return this.administrador;
     }
 
 
