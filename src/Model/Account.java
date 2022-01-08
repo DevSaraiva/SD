@@ -39,7 +39,7 @@ public class Account implements Serializable {
         reservations.put(id,r);
     }
 
-    public boolean cancelReservation (String codReservation) throws ReservationAlreadyCanceledException, ReservationNotExistException {
+    public void cancelReservation (String codReservation) throws ReservationAlreadyCanceledException, ReservationNotExistException {
         if (!this.reservations.containsKey(codReservation)) {
             new ReservationNotExistException(codReservation);
         } else {
