@@ -157,7 +157,7 @@ public class Info {
         if(!this.accountsMap.containsKey(username)){
             Account account  = new Account(username,password,admin);
             res = true;
-            this.accountsMap.put(account);
+            this.accountsMap.put(username,account);
         }
 
         return res;
