@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -146,7 +147,7 @@ public class Info {
 
 
     //TODO implementar os locks aqui!!!
-    public boolean updateFlightOccupation (String origin, String destination, int capacity) {
+    public void updateFlightCapacity (String origin, String destination, int capacity) {
         if (flightsMap.containsKey(origin)) {   //verify if the map with all the flights contains the desired flight (searching for the origin which is the key)
             List<Flight> flightsFromOrigin = flightsMap.get(origin);    //get the list of Flights that takes departure from that origin
             Flight flight = getFlightFromList(flightsFromOrigin, destination);
@@ -159,9 +160,13 @@ public class Info {
                 newList.add(newFlight);
                 flightsMap.put(origin, newList);
             }
-            return true;    //if everything goes well
         }
-        return false;       //otherwise, it returns false and we get to know that an error occurred
+        else {      //in case the origin isn't in the flightsMap
+            Flight flight = new Flight(destination, capacity, new HashMap<>());
+            List<Flight> newList = new ArrayList<>();
+            newList.add(flight);
+            flightsMap.put(origin, newList);
+        }
     }
 
 
