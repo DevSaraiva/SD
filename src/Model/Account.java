@@ -11,6 +11,7 @@ public class Account implements Serializable {
 
     String userID;
     String password;
+    boolean administrador;
     Map<String, Reservation> reservations;
 
     public Account (String userID, String password) {
@@ -38,6 +39,7 @@ public class Account implements Serializable {
     public void addReservation (String id , Reservation r) {
         reservations.put(id,r);
     }
+
 
     public void cancelReservation (String codReservation) throws ReservationAlreadyCanceledException, ReservationNotExistException {
         if (!this.reservations.containsKey(codReservation)) {
