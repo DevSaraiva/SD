@@ -145,7 +145,7 @@ public class Info {
     }
 
 
-
+//3. Inserção de informação sobre voos (origem, destino, capacidade) pelo administrador.
     //TODO implementar os locks aqui!!!
     public void updateFlightCapacity (String origin, String destination, int capacity) {
         if (flightsMap.containsKey(origin)) {   //verify if the map with all the flights contains the desired flight (searching for the origin which is the key)
@@ -168,6 +168,10 @@ public class Info {
             flightsMap.put(origin, newList);
         }
     }
+
+
+
+
 
 
     // Encerramento de um dia
@@ -268,5 +272,63 @@ public class Info {
         return idReservation;
     }
 
+
+
+
+
+//FUNCIONALIDADES ADICIONAIS:
+    //1. Obtenção de uma lista com todos os percursos possíveis para viajar entre uma origem e um des-
+    //tino, limitados a duas escalas (três voos). Minimize a quantidade de dados transferidos.
+
+
+    public List<List<String>> percursosComEscalas (String origin, String destination) {
+        List<List<String>> res = new ArrayList<>();
+        List<Flight> flightsFromOrigin = flightsMap.get(origin);        //TODO: criar a exceção de quando nao consegue dar get
+        List<String> subList = new ArrayList<>();
+        Flight fl;
+
+        if ((fl = hasDestination(flightsFromOrigin, destination)) != null) {                  //se tem destino diretamente para o pretendido, adiciona à lista e dá logo return
+            subList.add(fl.getDestination());
+            res.add(subList);
+            return res;
+        }
+        else {                                                                                  //caso nao tenha voo direto para o destino, pegar nos destinos desse e calcular se há algum que vá para o destino final
+            for (Flight f : flightsFromOrigin) {
+                List<Flight> flightsFromItermediate = flightsMap.get(f.getDestination());
+                //subList.add(fl.getDestination());
+                if ((fl = hasDestination(flightsFromItermediate, destination)) != null) {          //se tem destino da primeira escala para o pretendido, adicionamos essa escala à resposta e devolvemos
+                    subList.add(f.getDestination());
+                    res.add(subList);
+                    return res;
+                }
+                else {                                                                          //caso contrario, vamos verificar se há uma segunda escala que nos leve para esse destino
+                    subList.add(f.getDestination()); //adicionar o anterior (primeira escala) à resposta
+                    for(Flight f2 : flightsFromItermediate) {                                    //procurar se há uma segunda escala que nos leve ao destino, caso conntrario retornamos null pq atingimos o nº maximo de escalas
+                        List<Flight> flightToDestination = flightsMap.get(f2.getDestination());
+                        if (hasDestination(flightToDestination, destination) != null) {
+                            subList.add(f2.getDestination());
+                            res.add(subList);
+                            break;
+                        }
+                        else {
+                            return null;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+
+    public Flight hasDestination(List<Flight> flightsList, String destination) {
+        for (Flight f : flightsList) {
+            if (f.getDestination().equals(destination)) {
+                return f;
+            }
+        }
+        return null;
+    }
 
 }
