@@ -150,9 +150,17 @@ public class Info {
 
     //Funções de manipulação de login e signup
 
-    public boolean createAccount(String username, String password){
+    public boolean createAccount(String username, String password, boolean admin){
 
+        boolean res = false;
 
+        if(!this.accountsMap.containsKey(username)){
+            Account account  = new Account(username,password,admin);
+            res = true;
+            this.accountsMap.put(account);
+        }
+
+        return res;
 
 
     }
