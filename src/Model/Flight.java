@@ -6,15 +6,28 @@ import java.util.Map;
 
 public class Flight implements Serializable {
 
-    String destiny;
+    String destination;
     int capacity;
     Map<LocalDate, Integer> occupations;
 
-    public String getDestino() {
-        return destiny;
+    public String getDestination() {
+        return destination;
     }
 
-    public int getCapacidade() {
+    public int getCapacity() {
         return capacity;
+    }
+
+    public int getOcupations (LocalDate date) {
+        return occupations.get(date);
+    }
+
+    public void setOccupations (LocalDate date,int ocupation) {
+        this.occupations.put(date,ocupation);
+    }
+
+    // FIXME adicionar lock depois pq se tiverem dois ao mesmo tempo podem ler 1 lugar disponivel os dois
+    public int seatsLeft (LocalDate date){
+        return (this.capacity - getOcupations(date));
     }
 }
