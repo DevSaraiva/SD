@@ -19,6 +19,8 @@ public class Info {
     private Map<LocalDate, Boolean> closedScheduleMap;
     private Map<String, Account> accountsMap;
 
+    private static int idCounter = 0;
+
     public Info() {
 
         this.flightsMap = new HashMap<>();
@@ -142,6 +144,7 @@ public class Info {
     }
 
 
+
     //TODO implementar os locks aqui!!!
     public boolean updateFlightOccupation (String origin, String destination, int capacity) {
         if (flightsMap.containsKey(origin)) {   //verify if the map with all the flights contains the desired flight (searching for the origin which is the key)
@@ -162,9 +165,76 @@ public class Info {
     }
 
 
-    public Flight getFlightFromList (List<Flight> flights,String destination){
+    // Encerramento de um dia
+    // posteriormente devolver boolean para o caso se o dia ja estava encerrado ou nao ???
+    public void closeDay(LocalDate date) {
+       this.closedScheduleMap.put(date,true);
+    }
+
+    // recebe lista com o percurso completo como uma lista de String de todas as cidades por onde passa
+    // primeira é a origem a ultima é o destino
+    // e um intervalo de datas
+    public String bookTrip(String acountID, List<String> route,LocalDate startDate, LocalDate endDate) {
+            String codReserve = null;
+            LocalDate testDate = startDate;
+            boolean found = false;
+            LocalDate foundDate = null;
+            while(!found && (testDate.isBefore(endDate) || testDate.isEqual(endDate))) {
+                    if (verifyCloseDay(testDate)){
+                        // se o verify der true ou seja o dia esta encerrado
+                        testDate = testDate.plusDays(1);
+
+                    } else {
+                        // se o dia nao estiver encerrado
+                        boolean possible = true;
+                        for (int i = 0; (i < route.size() - 1) && possible; i++) {
+                            String originCity = route.get(i);
+                            String destinationCity = route.get(i+1);
+                            possible = checkFlightDate(originCity,destinationCity,testDate); // se nao for possivel fica false e salta fora do for
+                        }
+                        if (possible) {
+                            foundDate = testDate;
+                            found = true;
+                        } else {
+                            testDate.plusDays(1);
+                        }
+
+                    }
+            }
+            if (found) {
+                 codReserve = registerFlight(acountID,route,foundDate);
+            }
+            else  {
+                 codReserve = "Não é possível efectuar a viagem no intervalo de datas indicado";
+            }
+            return codReserve;
+    }
+
+
+
+    public boolean verifyCloseDay (LocalDate date){
+        return this.closedScheduleMap.get(date);
+    }
+
+
+
+    public boolean checkFlightDate(String originCity,String destinationCity,LocalDate date) {
+        boolean r = false;
+        List<Flight> destinations = this.flightsMap.get(originCity);
+        Flight destination = getFlightFromList(destinations,destinationCity);
+        if (destination != null) {
+            // FIXME precisa de lock ?? pq se tiverem dois ao mesmo tempo a perguntar e so tiver um lugar vao os dois registar e so ha um lugar
+            if (destination.seatsLeft(date) > 0) r = true;
+        }
+        return r;
+    }
+
+
+
+    public Flight getFlightFromList(List<Flight> flights,String destination){
         Flight res = null;
         for (Flight f : flights) {
+            System.out.println("ola");
             if (f.getDestination().compareTo(destination) == 0) {
                 res = f;
                 break;
@@ -172,5 +242,26 @@ public class Info {
         }
         return res;
     }
+
+
+
+    // regista o voo quando ja sabe que é possivel nesta data
+    public String registerFlight (String acountId,List<String> route, LocalDate date) {
+        for (int i = 0; (i < route.size() - 1); i++) {
+            String originCity = route.get(i);
+            String destinationCity = route.get(i+1);
+            Flight f = getFlightFromList(this.flightsMap.get(originCity),destinationCity);
+            int newOcupation = f.getOccupationDate(date) + 1;
+            f.setOccupationDate(date,newOcupation);
+        }
+
+        String idReservation = Integer.toString(idCounter);
+        idCounter++;
+        Reservation res = new Reservation(idReservation,date,route);
+        Account acc = this.accountsMap.get(acountId);
+        acc.addReservation(idReservation,res);
+        return idReservation;
+    }
+
 
 }
