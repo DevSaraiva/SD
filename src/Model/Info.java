@@ -1,5 +1,6 @@
 package Model;
 
+import Exceptions.OriginNotFoundOnMapException;
 import Exceptions.ReservationAlreadyCanceledException;
 import Exceptions.ReservationNotExistException;
 
@@ -325,8 +326,11 @@ public class Info {
     //tino, limitados a duas escalas (três voos). Minimize a quantidade de dados transferidos.
 
 
-    public List<List<String>> percursosComEscalas (String origin, String destination) {
+    public List<List<String>> percursosComEscalas (String origin, String destination) throws OriginNotFoundOnMapException {
         List<List<String>> res = new ArrayList<>();
+        if(!flightsMap.containsKey(origin)) {
+            throw new OriginNotFoundOnMapException(origin);
+        }
         List<Flight> flightsFromOrigin = flightsMap.get(origin);        //TODO: criar a exceção de quando nao consegue dar get
         List<String> subList = new ArrayList<>();
         Flight fl;
