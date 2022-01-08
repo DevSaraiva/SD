@@ -11,6 +11,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.time.LocalDate;
 import java.util.*;
+
+import java.time.LocalTime;
+
 import java.util.stream.Collectors;
 
 public class Info {
@@ -144,6 +147,31 @@ public class Info {
     }
 
 
+
+    //TODO implementar os locks aqui!!!
+    public void updateFlightCapacity (String origin, String destination, int capacity) {
+        if (flightsMap.containsKey(origin)) {   //verify if the map with all the flights contains the desired flight (searching for the origin which is the key)
+            List<Flight> flightsFromOrigin = flightsMap.get(origin);    //get the list of Flights that takes departure from that origin
+            Flight flight = getFlightFromList(flightsFromOrigin, destination);
+            if (flight != null) {
+                flight.setCapacity(capacity);    //once you got it, simply go to the map of the occupations and update the occupation on the desired date (which comes from an argument)
+            }
+            else {      //if the list doesn't contain the flight with the desired destination, we create and add it to the list
+                Flight newFlight =  new Flight(destination, capacity, new HashMap<>());
+                List<Flight> newList = flightsMap.get(origin);
+                newList.add(newFlight);
+                flightsMap.put(origin, newList);
+            }
+        }
+        else {      //in case the origin isn't in the flightsMap
+            Flight flight = new Flight(destination, capacity, new HashMap<>());
+            List<Flight> newList = new ArrayList<>();
+            newList.add(flight);
+            flightsMap.put(origin, newList);
+        }
+    }
+
+
     // Encerramento de um dia
     // posteriormente devolver boolean para o caso se o dia ja estava encerrado ou nao ???
     public void closeDay(LocalDate date) {
@@ -189,9 +217,13 @@ public class Info {
             return codReserve;
     }
 
+
+
     public boolean verifyCloseDay (LocalDate date){
         return this.closedScheduleMap.get(date);
     }
+
+
 
     public boolean checkFlightDate(String originCity,String destinationCity,LocalDate date) {
         boolean r = false;
@@ -204,6 +236,8 @@ public class Info {
         return r;
     }
 
+
+
     public Flight getFlightFromList(List<Flight> flights,String destination){
         Flight res = null;
         for (Flight f : flights) {
@@ -215,6 +249,8 @@ public class Info {
         }
         return res;
     }
+
+
 
     // regista o voo quando ja sabe que é possivel nesta data
     public String registerFlight (String acountId,List<String> route, LocalDate date) {

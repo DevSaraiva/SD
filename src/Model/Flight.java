@@ -12,6 +12,17 @@ public class Flight implements Serializable {
     Map<LocalDate, Integer> occupations;
 
 
+
+//CONSTRUCTORS
+    public Flight (String destination, int capacity, Map<LocalDate, Integer> occupations) {
+        this.destination = destination;
+        this.capacity = capacity;
+        setOccupations(occupations);
+    }
+
+
+//GETTERS AND SETTERS
+
     public String getDestination() {
         return destination;
     }
@@ -19,6 +30,7 @@ public class Flight implements Serializable {
     public void setDestination(String destination) {
         this.destination = destination;
     }
+
 
     public int getCapacity() {
         return capacity;
@@ -28,6 +40,7 @@ public class Flight implements Serializable {
         this.capacity = capacity;
     }
 
+
     public Map<LocalDate, Integer> getOccupations(){
         Map<LocalDate, Integer> res = new HashMap<>();
         for(var entry : occupations.entrySet()) {
@@ -36,9 +49,12 @@ public class Flight implements Serializable {
         return res;
     }
 
-    public void setOccupations(Map<LocalDate, Integer> occupations) {
-        this.occupations = occupations;
+    public void setOccupations (Map<LocalDate, Integer> inOccupations) {
+        for(var entry : inOccupations.entrySet()) {
+            this.occupations.put(entry.getKey(), entry.getValue());
+        }
     }
+
 
     public int getOccupationDate (LocalDate date) {
         return occupations.get(date);
@@ -53,6 +69,5 @@ public class Flight implements Serializable {
     public int seatsLeft (LocalDate date) {
         return (this.capacity - getOccupationDate(date));
     }
-
 
 }
