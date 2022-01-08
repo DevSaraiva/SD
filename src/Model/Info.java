@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -140,5 +141,36 @@ public class Info {
         fos.close();
     }
 
+
+    //TODO implementar os locks aqui!!!
+    public boolean updateFlightOccupation (String origin, String destination, int capacity) {
+        if (flightsMap.containsKey(origin)) {   //verify if the map with all the flights contains the desired flight (searching for the origin which is the key)
+            List<Flight> flightsFromOrigin = flightsMap.get(origin);    //get the list of Flights that takes departure from that origin
+            Flight flight = getFlightFromList(flightsFromOrigin, destination);
+            if (flight != null) {
+                flight.setCapacity(capacity);    //once you got it, simply go to the map of the occupations and update the occupation on the desired date (which comes from an argument)
+            }
+            else {      //if the list doesn't contain the flight with the desired destination, we create and add it to the list
+                Flight newFlight =  new Flight(destination, capacity, new HashMap<>());
+                List<Flight> newList = flightsMap.get(origin);
+                newList.add(newFlight);
+                flightsMap.put(origin, newList);
+            }
+            return true;    //if everything goes well
+        }
+        return false;       //otherwise, it returns false and we get to know that an error occurred
+    }
+
+
+    public Flight getFlightFromList (List<Flight> flights,String destination){
+        Flight res = null;
+        for (Flight f : flights) {
+            if (f.getDestination().compareTo(destination) == 0) {
+                res = f;
+                break;
+            }
+        }
+        return res;
+    }
 
 }

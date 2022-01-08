@@ -11,12 +11,30 @@ public class Flight implements Serializable {
     int capacity;
     Map<LocalDate, Integer> occupations;
 
-    public String getDestino() {
+
+//CONSTRUCTORS
+    public Flight (String destination, int capacity, Map<LocalDate, Integer> occupations) {
+        this.destination = destination;
+        this.capacity = capacity;
+        setOccupations(occupations);
+    }
+
+
+//GETTERS AND SETTERS
+    public String getDestination() {
         return destination;
     }
 
-    public int getCapacidade() {
+    public int getCapacity() {
         return capacity;
+    }
+
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
     }
 
     public Map<LocalDate, Integer> getOccupations () {
@@ -25,5 +43,11 @@ public class Flight implements Serializable {
             res.put(entry.getKey(), entry.getValue());
         }
         return res;
+    }
+
+    public void setOccupations (Map<LocalDate, Integer> inOccupations) {
+        for(var entry : inOccupations.entrySet()) {
+            this.occupations.put(entry.getKey(), entry.getValue());
+        }
     }
 }
