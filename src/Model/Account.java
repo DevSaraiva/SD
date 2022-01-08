@@ -14,11 +14,21 @@ public class Account implements Serializable {
     boolean administrador;
     Map<String, Reservation> reservations;
 
-    public Account (String userID, String password) {
+    public Account (String userID, String password, boolean administrador) {
         this.userID = userID;
         this.password = password;
         this.reservations = new HashMap<>();
     }
+
+
+    public void setAdministrador(boolean administrador) {
+        this.administrador = administrador;
+    }
+
+    public boolean getAdministrador(){
+        return this.password;
+    }
+
 
     public String getUserID() {
         return this.userID;

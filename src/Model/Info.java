@@ -147,6 +147,31 @@ public class Info {
     }
 
 
+    //Funções de manipulação de login e signup
+
+    public boolean createAccount(String username, String password){
+
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //3. Inserção de informação sobre voos (origem, destino, capacidade) pelo administrador.
     //TODO implementar os locks aqui!!!
     public void updateFlightCapacity (String origin, String destination, int capacity) {
@@ -349,5 +374,10 @@ public class Info {
         }
         return null;
     }
+
+
+
+
+
 
 }
