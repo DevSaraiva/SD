@@ -27,7 +27,6 @@ public class Flight implements Serializable {
         return destination;
     }
 
-
     public void setDestination(String destination) {
         this.destination = destination;
     }
@@ -36,7 +35,6 @@ public class Flight implements Serializable {
     public int getCapacity() {
         return capacity;
     }
-
 
     public void setCapacity(int capacity) {
         this.capacity = capacity;
@@ -71,5 +69,5 @@ public class Flight implements Serializable {
     public int seatsLeft (LocalDate date) {
         return (this.capacity - getOccupationDate(date));
     }
-    
+
 }
