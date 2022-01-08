@@ -1,5 +1,8 @@
 package Model;
 
+import Exceptions.ReservationAlreadyCanceledException;
+import Exceptions.ReservationNotExistException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -7,11 +10,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.time.LocalDate;
+import java.util.*;
+
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
 import java.util.stream.Collectors;
 
 public class Info {
@@ -272,6 +274,23 @@ public class Info {
         return idReservation;
     }
 
+    // se nao devolver nenhuma exception foi cancelado com suceso
+    // quem chamar esta funcao depois tratar a exception que ja leva la o codReserva
+    public void cancelFlight (String idUser, String codReservation) throws ReservationNotExistException, ReservationAlreadyCanceledException {
+        Account acc = this.accountsMap.get(idUser);
+        acc.cancelReservation(codReservation);
+    }
+
+    public List<AbstractMap.Entry<String,String>> getFlightsList () {
+        List< AbstractMap.Entry<String,String> > res = new ArrayList<>();
+        for (Map.Entry<String,List<Flight>> flightsOrigin : this.flightsMap.entrySet()){
+                String originCity = flightsOrigin.getKey();
+                for (Flight f : flightsOrigin.getValue()) {
+                    res.add(new AbstractMap.SimpleEntry(originCity,f.getDestination()));
+                }
+        }
+        return res;
+    }
 
 
 

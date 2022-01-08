@@ -1,5 +1,8 @@
 package Model;
 
+import Exceptions.ReservationAlreadyCanceledException;
+import Exceptions.ReservationNotExistException;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,5 +37,19 @@ public class Account implements Serializable {
 
     public void addReservation (String id , Reservation r) {
         reservations.put(id,r);
+    }
+
+    public void cancelReservation (String codReservation) throws ReservationAlreadyCanceledException, ReservationNotExistException {
+        if (!this.reservations.containsKey(codReservation)) {
+            new ReservationNotExistException(codReservation);
+        } else {
+            Reservation r = this.reservations.get(codReservation);
+            if (r.isCancel()) {
+                new ReservationAlreadyCanceledException(codReservation);
+            }
+            else {
+                r.setCancel(true);
+            }
+        }
     }
 }
