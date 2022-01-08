@@ -10,10 +10,11 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Info {
 
-    private Map<String, List<Flight>> flightsMap;
+    private Map<String, List<Flight>> flightsMap;   //key is the origin; value is the list of the flights with departure from that origin
     private Map<LocalDate, Boolean> closedScheduleMap;
     private Map<String, Account> accountsMap;
 
@@ -141,6 +142,7 @@ public class Info {
         fos.close();
     }
 
+
     // Encerramento de um dia
     // posteriormente devolver boolean para o caso se o dia ja estava encerrado ou nao ???
     public void closeDay(LocalDate date) {
@@ -219,8 +221,8 @@ public class Info {
             String originCity = route.get(i);
             String destinationCity = route.get(i+1);
             Flight f = getFlightFromList(this.flightsMap.get(originCity),destinationCity);
-            int newOcupation = f.getOcupations(date) + 1;
-            f.setOccupations(date,newOcupation);
+            int newOcupation = f.getOccupationDate(date) + 1;
+            f.setOccupationDate(date,newOcupation);
         }
 
         String idReservation = Integer.toString(idCounter);

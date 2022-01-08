@@ -3,6 +3,7 @@ package Model;
 import java.time.LocalDate;
 import java.util.List;
 
+
 public class Reservation {
 
     String idReservation;
@@ -38,4 +39,5 @@ public class Reservation {
     public void setRoute(List<String> route) {
         this.route = route;
     }
+
 }
