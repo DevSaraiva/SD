@@ -9,11 +9,13 @@ public class Reservation {
     String idReservation;
     LocalDate day;
     List<String> route;
+    boolean cancel; // se foi cancelada
 
     public Reservation (String idReservation,LocalDate date, List<String> route) {
         this.idReservation = idReservation;
         this.day = date;
         this.route = route;
+        this.cancel = false;
     }
 
     public String getIdReservation() {
@@ -40,4 +42,11 @@ public class Reservation {
         this.route = route;
     }
 
+    public boolean isCancel() {
+        return this.cancel;
+    }
+
+    public void setCancel(boolean cancel) {
+        this.cancel = cancel;
+    }
 }

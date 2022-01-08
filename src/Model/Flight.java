@@ -48,7 +48,7 @@ public class Flight implements Serializable {
         this.occupations.put(date,ocupation);
     }
 
-    
+
     // FIXME adicionar lock depois pq se tiverem dois ao mesmo tempo podem ler 1 lugar disponivel os dois
     public int seatsLeft (LocalDate date) {
         return (this.capacity - getOccupationDate(date));
