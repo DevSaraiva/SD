@@ -40,17 +40,19 @@ public class Demultiplexer {
             try {
                 while (true) {
                     Frame frame = c.receive();
-                    l.lock();
-                    try {
-                        FrameValue fv = map.get(frame.tag);
-                        if (fv == null) {
-                            fv = new FrameValue();
-                            map.put(frame.tag, fv);
+                    if(frame != null) {
+                        l.lock();
+                        try {
+                            FrameValue fv = map.get(frame.tag);
+                            if (fv == null) {
+                                fv = new FrameValue();
+                                map.put(frame.tag, fv);
+                            }
+                            fv.queue.add(frame.data);
+                            fv.c.signal();
+                        } finally {
+                            l.unlock();
                         }
-                        fv.queue.add(frame.data);
-                        fv.c.signal();
-                    } finally {
-                        l.unlock();
                     }
                 }
             } catch (IOException e) {

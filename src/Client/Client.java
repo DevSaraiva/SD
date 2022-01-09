@@ -163,7 +163,7 @@ public class Client {
 
                 case 0:
                     System.out.println("Até à próxima... :)");
-                    fs = new Frame(Tag.LOGOUT, null, null);
+                    fs = new Frame(Tag.LOGOUT, "dfgsfdsdf", new byte[0]); //FIXME
                     dm.send(fs);
                     exit = true;
                     break;
