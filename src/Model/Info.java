@@ -59,12 +59,7 @@ public class Info {
 
     }
 
-    // MÉTODOS DE MANIPULAR O CONJUNTO DE TODOS OS DADOS
-    public void loadData(String pasta) throws IOException, ClassNotFoundException {
-        loadFlights(pasta);
-        loadAccounts(pasta);
-        loadClosedSchedules(pasta);
-    }
+
 
     public void saveData(String pasta) {
         File folder = new File(pasta);
@@ -165,7 +160,28 @@ public class Info {
 
     }
 
+    //0 PARA PASS ERRADA
+    //1 PARA USER
+    //2 PARA UTILIZADOR
+    //3 PARA CONTA INEXISTENTE
 
+    public int verifyLogin(String user, String password){
+
+        int res = 0;
+
+        if(this.accountsMap.containsKey(user)){
+            Account account = this.accountsMap.get(user);
+            if(account.getPassword().equals(password)){
+                if(account.getAdministrador()) res = 2;
+                else res = 1;
+            }
+        }else {
+            res = 4;
+        }
+
+        return res;
+
+    }
 
 
 

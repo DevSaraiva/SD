@@ -2,13 +2,10 @@ package Server;
 
 
 import java.io.IOException;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 
 import Model.*;
+
+import Model.Frame.Tag;
 
 public class ServerConnection implements Runnable {
     private final TaggedConnection tC;
@@ -34,20 +31,27 @@ public class ServerConnection implements Runnable {
 
             try {
                 frame = this.tC.receive();
-                switch (frame.tag) {
 
-                    case SIGNUP:
-                        signup(frame);
-                        break;
-                    case LOGIN:
-                        login(frame);
-                        break;
-                    case LOGOUT:
-                        logout();
-                        break;
-                    default:
-                        break;
+                if(frame != null){
+
+                    switch (frame.tag) {
+
+                        case SIGNUP:
+                            signup(frame);
+                            break;
+                        case LOGIN:
+                            login(frame);
+                            break;
+                        case LOGOUT:
+                            logout();
+                            break;
+                        default:
+                            break;
+                    }
+                }else {
+                    this.online = false;
                 }
+
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -57,29 +61,58 @@ public class ServerConnection implements Runnable {
 
     }
 
-    private void signup(Frame frame) {
-
-        String username = frame.username;
-        String password = new String(frame.data);
-        
-        System.out.println(username);
-        System.out.println(password);
-
-
-    }
-
-    private void login(Frame frame) {
+    private void signup(Frame frame) throws IOException {
 
         String username = frame.username;
         String password = new String(frame.data);
 
-        System.out.println(username);
-        System.out.println(password);
+        boolean created = info.createAccount(username,password,false);
+
+        String res;
+        if(created){
+            res = "REGISTADO";
+        }else {
+            res = "USER-EXISTS";
+        }
+
+        tC.send(new Frame(Tag.SIGNUP,username,res.getBytes()));
 
     }
 
-    private void logout() {
+    private void login(Frame frame) throws IOException {
 
+        String username = frame.username;
+        String password = new String(frame.data);
+
+        int logged = info.verifyLogin(username,password);
+
+        String res = null;
+
+        switch (logged){
+
+            case 0 :
+                res = "PASSWORD";
+                break;
+            case 1 :
+                res = "USER";
+                break;
+
+            case 3 :
+                res = "ADMIN";
+                break;
+
+            case 4 :
+                res = "NOTFOUND";
+
+        }
+
+        tC.send(new Frame(Tag.LOGIN,username,res.getBytes()));
+
+    }
+
+    private void logout() throws IOException {
+        this.tC.close();
+        this.online = false;
     }
 
 }

@@ -6,9 +6,11 @@ import Model.Frame;
 import Model.Frame.Tag;
 import Server.TaggedConnection;
 
+import javax.sound.midi.Soundbank;
 import java.io.*;
 
 public class Client {
+
 
     public static void main(String[] args) throws Exception {
 
@@ -16,6 +18,8 @@ public class Client {
         Demultiplexer dm = new Demultiplexer(new TaggedConnection(s));
 
         boolean admin = false;
+
+        dm.start();
 
         BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 
@@ -26,15 +30,14 @@ public class Client {
             System.out.print("\n***Reserva de Voos***\n"
                     + "\n"
                     + "1) Efectuar Registo como Utilizador.\n"
-                    + "2) Efectuar Login como Utilizador.\n"
-                    + "3) Efectuar Login como Administrador.\n"
+                    + "2) Efectuar Login como Utilizador/Admin.\n"
                     + "\n"
                     + "0) Sair.\n");
 
             int optionAuthenticated = -1;
             while (optionAuthenticated == -1) { // enquanto a opcao introduzida for invalida
                 System.out.println("\nInsira o valor correspondente à operação desejada: \n");
-                optionAuthenticated = readOptionInt(2, stdin);
+                optionAuthenticated = readOptionInt(3, stdin);
             }
             String username = null;
             String password = null;
@@ -85,7 +88,8 @@ public class Client {
                             authenticated = true;
                             admin = true;
                         }else{
-                            System.out.println("Username e/ou Palavra-Passe errados");
+                            if (res.equals("NOTFOUND")) System.out.println("Username não existe");
+                            else System.out.println("Palavra-Passe errada");
                         }
                     }
 
@@ -117,20 +121,20 @@ public class Client {
                         + "2) Cancelar reserva de uma viagem, indicando o código de reserva \n"
                         + "3) Oter lista de todas os voos existentes (lista de pares origem → destino) \n"
                         + "\n"
-                        + "0) Sair.\n");
+                        + "6) Sair.\n");
 
                 while (option == -1) { // enquanto a opcao introduzida for invalida
                     System.out.println("\nInsira o valor correspondente à operação desejada: \n");
-                    option = readOptionInt(3, stdin);
+                    option = readOptionInt(6, stdin);
                 }
                 option = option + 2; // passa a ser opcoes 3 4 5
             }
 
+
+
+            Frame fs = null;
+
             switch (option) {
-                case 0:
-                    // exit
-                    exit = true;
-                    break;
 
                 case 1:
                     // admin-> Inserir informação sobre voos , introduzindo Origem, Destino e
@@ -154,6 +158,14 @@ public class Client {
                     // user -> Oter lista de todas os voos existentes (lista de pares origem →
                     // destino)
                     break;
+
+
+                case 6:
+                    System.out.println("Até à próxima... :)");
+                    fs = new Frame(Tag.LOGOUT, null, null);
+                    dm.send(fs);
+                    exit = true;
+                    break;
             }
         }
     }
@@ -164,6 +176,7 @@ public class Client {
             System.out.print("Opção: ");
             try {
                 String line = stdin.readLine();
+
                 op = Integer.parseInt(line);
             } catch (NumberFormatException | IOException e) { // Não foi escrito um int
                 op = -1;

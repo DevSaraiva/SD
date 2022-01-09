@@ -37,9 +37,9 @@ public class TaggedConnection implements AutoCloseable {
     }
 
     public Frame receive() throws IOException {
-        Tag tag;
-        byte[] data;
-        String username;
+        Tag tag = null;
+        byte[] data = null;
+        String username = null;
         try {
             rl.lock();
             tag = Tag.valueOf(dis.readUTF());
@@ -47,9 +47,14 @@ public class TaggedConnection implements AutoCloseable {
             int n = this.dis.readInt();
             data = new byte[n];
             this.dis.readFully(data);
+
+        }catch (EOFException e){
+                    this.close();
+                    return null;
         } finally {
             rl.unlock();
         }
+
         return new Frame(tag, username, data);
     }
 
