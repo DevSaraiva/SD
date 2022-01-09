@@ -120,13 +120,15 @@ public class Client {
                         + "2) Cancelar reserva de uma viagem, indicando o código de reserva \n"
                         + "3) Oter lista de todas os voos existentes (lista de pares origem → destino) \n"
                         + "\n"
-                        + "6) Sair.\n");
+                        + "0) Sair.\n");
 
                 while (option == -1) { // enquanto a opcao introduzida for invalida
                     System.out.println("\nInsira o valor correspondente à operação desejada: \n");
-                    option = readOptionInt(6, stdin);
+                    option = readOptionInt(3, stdin);
                 }
-                option = option + 2; // passa a ser opcoes 3 4 5
+                if (option != 0) { // se for o sair nao soma 2
+                    option = option + 2; // 1 2 3 passa a ser opcoes 3 4 5
+                }
             }
 
 
@@ -159,7 +161,7 @@ public class Client {
                     break;
 
 
-                case 6:
+                case 0:
                     System.out.println("Até à próxima... :)");
                     fs = new Frame(Tag.LOGOUT, null, null);
                     dm.send(fs);
