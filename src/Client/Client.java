@@ -52,7 +52,7 @@ public class Client {
             int optionAuthenticated = -1;
             while (optionAuthenticated == -1) { // enquanto a opcao introduzida for invalida
                 System.out.println("\nInsira o valor correspondente à operação desejada: \n");
-                optionAuthenticated = readOptionInt(3, stdin);
+                optionAuthenticated = readOptionInt(2, stdin);
             }
             String username = null;
             String password = null;
@@ -167,23 +167,21 @@ public class Client {
                     String origin = stdin.readLine();
                     System.out.println("\nInsira a Destino:");
                     String destination = stdin.readLine();
-                    System.out.println("\nInsira a capacidade: \n");
                     int capacity = -1;
                     while (capacity == -1) { // enquanto a opcao introduzida for invalida
-                        System.out.println("\nInsira o valor correspondente à operação desejada: \n");
+                        System.out.println("\nInsira o valor correspondente à capcidade: \n");
                         capacity = readOptionInt(1000,stdin);
                     }
-                    System.out.println("capacidade : " + capacity);
                     sendMessage = origin + "/" + destination + "/" + capacity;
 
                     dm.send(new Frame(Tag.INSERT_FLY,sendMessage.getBytes()));
 
-                    receiveMessage = new String(dm.receive(Tag.LOGIN)); // aqui nao devia ser Tag.INSERT_FLY ???
+                    receiveMessage = new String(dm.receive(Tag.INSERT_FLY)); // FIXME mudei aqui para ser Tag.INSERT_FLY (tava login)
 
                     if(receiveMessage.equals("INSERTED")){
                         System.out.println("Voo adicionado com sucesso");
                     }else{
-                        System.out.println("Capacidade do voo ataulizada");
+                        System.out.println("Capacidade do voo atualizada");
                     }
 
 
@@ -191,15 +189,18 @@ public class Client {
 
                 case 2:
                     // admin-> Encerramento de um dia, impedindo novas reservas e cancelamentos de reservas para esse mesmo dia
-                    // FIXME posteriormente receber boolean para o caso se o dia ja estava encerrado ou nao ???
 
                     LocalDate date = readDate(stdin);
-
-                    // admin-> Encerramento de um dia, impedindo novas reservas e cancelamentos de
-                    // reservas para esse mesmo dia
                     send = date.getDayOfMonth() + "-" + date.getMonthValue() + "-" + date.getYear();
-                    fs = new Frame(Tag.CLOSE_DAY,send.getBytes()); // FIXME FALTA FAZER NO SERVIDOR
+                    fs = new Frame(Tag.CLOSE_DAY,send.getBytes());
                     dm.send(fs);
+
+                    receiveMessage = new String(dm.receive(Tag.CLOSE_DAY));
+                    if (receiveMessage.equals("ALREADY_CLOSED")) {
+                        System.out.println("O dia que indicou já se encontrava fechado.");
+                    }else {
+                        System.out.println("O dia " + date.toString() + " foi encerrado.");
+                    }
                     break;
 
                 case 3:
@@ -219,26 +220,29 @@ public class Client {
 
                 case 4:
                     // user-> Reservar viagem
-                    // FIXME acho que devia receber se o percurso é possivel ou nao e recber tambem no caso de nao haver voos disponiveis para as datas que ele deu
-
                     System.out.println("\nIntroduza o percurso completo com todas as escalas no formato Origem-Escala-...-Destino");
                     String route = stdin.readLine();
-                    System.out.println("\nIntroduza agora o intervalo de datas que pretende fazer a viagem começando por indicar a data de inicio:");
+                    System.out.println("\nIntroduza agora o intervalo de datas que pretende fazer a viagem começando por indicar a data de inicio no formato D/M/A:");
                     LocalDate startDate = readDate(stdin);
-                    System.out.println("\nIntroduza agora a data final do intervalo:");
+                    System.out.println("\nIntroduza agora a data final do intervalo no formato D/M/A:");
                     LocalDate endDate = readDate(stdin);
                     String limitInfDate = startDate.getDayOfMonth() + "-" + startDate.getMonthValue() + "-" + startDate.getYear();
                     String limitSupDate = endDate.getDayOfMonth() + "-" + endDate.getMonthValue() + "-" + endDate.getYear();
                     send = route + "/" +  limitInfDate + "/" + limitSupDate;
-                    fs = new Frame(Tag.BOOK_TRIP,send.getBytes()); // FIXME FALTA FAZER NO SERVIDOR
+                    fs = new Frame(Tag.BOOK_TRIP,send.getBytes());
                     dm.send(fs);
+
+                    receiveMessage = new String(dm.receive(Tag.BOOK_TRIP));
+                    if(receiveMessage.equals("NO_POSSIBLE")) {
+                        System.out.println("Não é possível efectuar a viagem no intervalo de datas indicado.");
+                    } else {
+                        System.out.println("A reserva foi registada com sucesso. O código da reserva é " + receiveMessage + ".");
+                    }
 
                     break;
 
                 case 5:
                     // user-> Cancelar reserva de uma viagem, indicando o código de reserva
-                    // FIXME TALVEZ RECEBER SE A RESERVA FOI EFECTUADO COM SUCESSO OU SE JA SE ENCONTRAVA CANCELADA (E TAMBEM CASO DO ID NAO EXISTIR)
-                    //
                     System.out.println("Indique o id da reserva que pretende cancelar:");
                     int id = readOptionInt(1000,stdin);
                     send = Integer.toString(id);
@@ -265,15 +269,15 @@ public class Client {
                     dm.send(fs);
 
                     receiveMessage = new String(dm.receive(Tag.GET_FLIGHTS_LIST));
-                    String[] flights = receiveMessage.split("/");
-                    if (flights.length > 0) {
+                    if (receiveMessage.equals("NO_FLIGHTS")) {
+                        System.out.println("Não existem voos.");
+                    } else {
+                        String[] flights = receiveMessage.split("/");
                         System.out.println("\nLista de todos os voos existentes: ");
                         for (String f : flights) {
                             String[] oriDest = f.split("-");
                             System.out.println("\t" + oriDest[0] + " -> " + oriDest[1]);
                         }
-                    } else {
-                        System.out.println("Não existe nenhum voo.");
                     }
 
                     break;
@@ -318,8 +322,6 @@ public class Client {
     public static LocalDate readDate(BufferedReader stdin) {
         LocalDate date = null;
         while (date == null) {
-            System.out.println("\nInsira o dia que pretende encerrar no formato D/M/A");
-
             String data = null;
             try {
                 data = stdin.readLine();
@@ -332,6 +334,9 @@ public class Client {
                 date = verifyDate(date_parse[0],date_parse[1],date_parse[2]);
             } else {
                 System.out.println("Data inserida está no formato inválido. Certifique-se que introduz a data no formato Dia/Mês/Ano.");
+            }
+            if (date == null) {
+                System.out.println("\nInsira o dia que pretende no formato D/M/A");
             }
 
         }

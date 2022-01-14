@@ -2,6 +2,8 @@ package Server;
 
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -59,6 +61,7 @@ public class ServerConnection implements Runnable {
                             break;
 
                         case CLOSE_DAY:
+                            closeDay(frame);
                             break;
 
                         case CLOSE_SERVICE:
@@ -66,6 +69,7 @@ public class ServerConnection implements Runnable {
                             break;
 
                         case BOOK_TRIP:
+                            bookTrip(frame);
                             break;
 
                         case CANCEL_FLIGHT:
@@ -152,7 +156,7 @@ public class ServerConnection implements Runnable {
     }
 
 
-    private void  insertFlight(Frame frame) throws IOException {
+    public void  insertFlight(Frame frame) throws IOException {
 
         String[] received = new String(frame.data).split("/");
 
@@ -173,6 +177,23 @@ public class ServerConnection implements Runnable {
 
     }
 
+    public void closeDay(Frame frame) throws IOException {
+        String receiveMessage = new String(frame.data);
+        String[] dateDMA = receiveMessage.split("-");
+        LocalDate date = LocalDate.of(Integer.parseInt(dateDMA[2]),Integer.parseInt(dateDMA[1]),Integer.parseInt(dateDMA[0]));
+
+        String res = null;
+        boolean b = this.info.closeDay(date);
+        if (b) {
+            res = "DAY_CLOSED";
+        }else {
+            res = "ALREADY_CLOSED";
+        }
+
+        tC.send(new Frame(Tag.CLOSE_DAY,res.getBytes()));
+
+    }
+
 
     public void closeServer() throws IOException {
 
@@ -183,8 +204,27 @@ public class ServerConnection implements Runnable {
         tC.send(new Frame(Tag.CLOSE_SERVICE,res.getBytes()));
     }
 
+    public void bookTrip (Frame frame) throws IOException {
+        String receiveMessage = new String(frame.data); // recebe route/dataInicio/DataFim
+        String[] rm = receiveMessage.split("/");
+        String[] citys = rm[0].split("-");
+        List<String> route =  new ArrayList<String>();
+        for (String city : citys) {
+            route.add(city);
+        }
+        System.out.println(rm[1]);
+        System.out.println(rm[2]);
+        String[] dateS = rm[1].split("-");
+        String[] dateE = rm[2].split("-");
+        LocalDate startDate = LocalDate.of(Integer.parseInt(dateS[2]),Integer.parseInt(dateS[1]),Integer.parseInt(dateS[0]));
+        LocalDate endDate = LocalDate.of(Integer.parseInt(dateE[2]),Integer.parseInt(dateE[1]),Integer.parseInt(dateE[0]));
+        String codReserve = info.bookTrip(username,route,startDate,endDate);
 
-    private void cancelFlight(Frame frame) throws IOException {
+        tC.send(new Frame(Tag.BOOK_TRIP,codReserve.getBytes()));
+    }
+
+
+    public void cancelFlight(Frame frame) throws IOException {
         String idReservation = new String(frame.data);
 
 
@@ -200,15 +240,20 @@ public class ServerConnection implements Runnable {
         tC.send(new Frame(Tag.CANCEL_FLIGHT,send.getBytes()));
     }
 
-    private void getFLYlist() throws IOException {
+    public void getFLYlist() throws IOException {
         List<Map.Entry<String,String>> flights = info.getFlightsList();
-        StringBuilder sb = new StringBuilder(); // controi do tipo origem1-Destino1/origem2-Destino2/
-        for (Map.Entry<String,String> entry : flights) {
-            sb.append(entry.getKey()).append("-").append(entry.getValue()).append("/");
+        String send = null;
+        if (flights.size() == 0) {
+            send = "NO_FLIGHTS";
+        } else {
+            StringBuilder sb = new StringBuilder(); // controi do tipo origem1-Destino1/origem2-Destino2/
+            for (Map.Entry<String, String> entry : flights) {
+                sb.append(entry.getKey()).append("-").append(entry.getValue()).append("/");
+            }
+            sb.deleteCharAt(sb.length() - 1); // apaga a ultima barra a mais
+            send = sb.toString();
         }
-        sb.deleteCharAt(sb.length()-1); // apaga a ultima barra a mais
-
-        tC.send(new Frame(Tag.GET_FLIGHTS_LIST,sb.toString().getBytes()));
+        tC.send(new Frame(Tag.GET_FLIGHTS_LIST,send.getBytes()));
 
     }
 
