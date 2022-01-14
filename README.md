@@ -3,9 +3,9 @@ Plataforma de reserva de voos sob a forma de um par cliente-servidor em Java uti
 A essência do serviço é permitir aos utilizadores reservar viagens constituídas por vários voos, sendo informados pelo servidor quando a reserva foi feita com sucesso.
 
 ## Admin:
-username: admin
-password: admin
+username: admin  
+password: admin  
 
 ## Users:
-username:
-password:
+username:  
+password:  
