@@ -7,5 +7,28 @@ Username: *admin*
 Password: *admin*  
 
 ## User credentials:
-Username:  
-Password:  
+Username: bernardo  
+Password: 12345
+
+Dias Fechados :
+
+25/12/2022
+15/03/2022
+
+
+Users:
+
+admin - > admin
+bernardo -> 12345
+
+
+voos
+
+
+Porto -> Paris -> Capacidade -> 10
+Lisboa -> Toquio -> Capacidade -> 50
+Madrid -> Roma -> Capacidade -> 70
+Amesterdão -> Toronto -> 1
+
+
+
