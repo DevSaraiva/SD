@@ -30,7 +30,7 @@ public class Server {
         Info info = new Info();
 
         while (info.isOnline()) {
-            
+
             Socket socket = serverSocket.accept();
             new Thread(new ServerConnection(new TaggedConnection(socket), info)).start();
         }

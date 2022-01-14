@@ -18,11 +18,19 @@ import java.util.List;
 
 public class Client {
 
+// ver o IOException
+    public static void main(String[] args) throws IOException, InterruptedException {
 
-    public static void main(String[] args) throws Exception {
+        Socket s = null;
+        Demultiplexer dm = null;
+        try {
+            s = new Socket("localhost", 8888);
+            dm = new Demultiplexer(new TaggedConnection(s));
+        } catch (IOException e) {
+            System.out.println("O Servidor está indisponivel!");
+        }
 
-        Socket s = new Socket("localhost", 8888);
-        Demultiplexer dm = new Demultiplexer(new TaggedConnection(s));
+
 
         boolean admin = false;
 
@@ -148,7 +156,7 @@ public class Client {
             Frame fs = null;
             String sendMessage;
             String receiveMessage;
-
+            Frame fr = null; // frame received
 
             String send = null;
             switch (option) {
@@ -170,7 +178,7 @@ public class Client {
 
                     dm.send(new Frame(Tag.INSERT_FLY,sendMessage.getBytes()));
 
-                    receiveMessage = new String(dm.receive(Tag.LOGIN));
+                    receiveMessage = new String(dm.receive(Tag.LOGIN)); // aqui nao devia ser Tag.INSERT_FLY ???
 
                     if(receiveMessage.equals("INSERTED")){
                         System.out.println("Voo adicionado com sucesso");
@@ -234,17 +242,39 @@ public class Client {
                     System.out.println("Indique o id da reserva que pretende cancelar:");
                     int id = readOptionInt(1000,stdin);
                     send = Integer.toString(id);
-                    fs = new Frame(Tag.CANCEL_FLIGHT,send.getBytes()); // FIXME FALTA FAZER NO SERVIDOR
+
+                    fs = new Frame(Tag.CANCEL_FLIGHT,send.getBytes());
                     dm.send(fs);
+
+                    receiveMessage = new String(dm.receive(Tag.CANCEL_FLIGHT));
+
+                    if(receiveMessage.equals("CANCELED")){
+                        System.out.println("Reserva cancelada com sucesso");
+                    }else if (receiveMessage.equals("NOT_EXIST")){
+                        System.out.println("Não possui nenhuma reserva com o id indicado");
+                        } else {
+                            System.out.println("A Reserva já se encontra cancelada");
+                        }
 
                     break;
 
                 case 6:
                     // user -> Oter lista de todas os voos existentes (lista de pares origem → destino)
 
-                    // aqui nao manda nada ver se null funciona depois
-                    fs = new Frame(Tag.GET_FLIGHTS_LIST,null); // FIXME FALTA FAZER NO SERVIDOR
+                    fs = new Frame(Tag.GET_FLIGHTS_LIST,new byte[0]);
                     dm.send(fs);
+
+                    receiveMessage = new String(dm.receive(Tag.GET_FLIGHTS_LIST));
+                    String[] flights = receiveMessage.split("/");
+                    if (flights.length > 0) {
+                        System.out.println("\nLista de todos os voos existentes: ");
+                        for (String f : flights) {
+                            String[] oriDest = f.split("-");
+                            System.out.println("\t" + oriDest[0] + " -> " + oriDest[1]);
+                        }
+                    } else {
+                        System.out.println("Não existe nenhum voo.");
+                    }
 
                     break;
 
