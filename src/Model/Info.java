@@ -296,9 +296,15 @@ public class Info {
 
 
     // Encerramento de um dia
-    // FIXME posteriormente devolver boolean para o caso se o dia ja estava encerrado ou nao ???
-    public void closeDay(LocalDate date) {
-       this.closedScheduleMap.put(date,true);
+    // devolve true se o dia ainda nao tava fechado e pos fechado ou false se ja estava fechado
+    public boolean closeDay(LocalDate date) {
+        if (verifyCloseDay(date)) {
+            return false;
+        } else {
+            this.closedScheduleMap.put(date,true);
+            return true;
+        }
+
     }
 
     // recebe lista com o percurso completo como uma lista de String de todas as cidades por onde passa
@@ -335,7 +341,7 @@ public class Info {
                  codReserve = registerFlight(acountID,route,foundDate);
             }
             else  {
-                 codReserve = "Não é possível efectuar a viagem no intervalo de datas indicado";
+                 codReserve = "NO_POSSIBLE";
             }
             return codReserve;
     }
@@ -364,7 +370,6 @@ public class Info {
     public Flight getFlightFromList(List<Flight> flights,String destination){
         Flight res = null;
         for (Flight f : flights) {
-            System.out.println("ola");
             if (f.getDestination().compareTo(destination) == 0) {
                 res = f;
                 break;
