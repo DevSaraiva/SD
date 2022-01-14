@@ -186,31 +186,28 @@ public class Info {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 //3. Inserção de informação sobre voos (origem, destino, capacidade) pelo administrador.
+
+    //devolve true caso insira
+    //devolve false caso atualize
     //TODO implementar os locks aqui!!!
-    public void updateFlightCapacity (String origin, String destination, int capacity) {
+    public boolean insertFlight (String origin, String destination, int capacity) {
+
+        boolean inserted = false;
+
         if (flightsMap.containsKey(origin)) {   //verify if the map with all the flights contains the desired flight (searching for the origin which is the key)
             List<Flight> flightsFromOrigin = flightsMap.get(origin);    //get the list of Flights that takes departure from that origin
             Flight flight = getFlightFromList(flightsFromOrigin, destination);
             if (flight != null) {
-                flight.setCapacity(capacity);    //once you got it, simply go to the map of the occupations and update the occupation on the desired date (which comes from an argument)
+                flight.setCapacity(capacity);//once you got it, simply go to the map of the occupations and update the occupation on the desired date (which comes from an argument)
+                inserted = false;
             }
             else {      //if the list doesn't contain the flight with the desired destination, we create and add it to the list
                 Flight newFlight =  new Flight(destination, capacity, new HashMap<>());
                 List<Flight> newList = flightsMap.get(origin);
                 newList.add(newFlight);
                 flightsMap.put(origin, newList);
+                inserted = true;
             }
         }
         else {      //in case the origin isn't in the flightsMap
@@ -218,12 +215,10 @@ public class Info {
             List<Flight> newList = new ArrayList<>();
             newList.add(flight);
             flightsMap.put(origin, newList);
+            inserted = true;
         }
+        return  inserted;
     }
-
-
-
-
 
 
     // Encerramento de um dia

@@ -5,8 +5,10 @@ import java.net.*;
 import Model.Frame;
 import Model.Frame.Tag;
 import Server.TaggedConnection;
+import jdk.swing.interop.SwingInterOpUtils;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class Client {
 
@@ -139,9 +141,14 @@ public class Client {
 
             Frame fs = null;
 
+            String sendMessage;
+            String receiveMessage;
+
             switch (option) {
 
                 case 1:
+                    // admin-> Inserir informação sobre voos , introduzindo Origem, Destino Capacidade
+
                     System.out.println("\nInsira a Origem:\n");
                     String origin = stdin.readLine();
                     System.out.println("Origem : " + origin);
@@ -149,11 +156,29 @@ public class Client {
                     String destination = stdin.readLine();
                     System.out.println("Destino : " + destination);
                     System.out.println("\nInsira a capacidade: \n");
-                    int capacity = readOptionInt(500,stdin);
+
+                    int capacity = -1;
+                    while (capacity == -1) { // enquanto a opcao introduzida for invalida
+                        System.out.println("\nInsira o valor correspondente à operação desejada: \n");
+                        capacity = readOptionInt(1000,stdin);
+                    }
                     System.out.println("capacidade : " + capacity);
-                    //fs = new Frame(Tag.INSERT_FLY,"")
-                    // admin-> Inserir informação sobre voos , introduzindo Origem, Destino e
-                    // Capacidade
+                    sendMessage = origin + "/" + destination + "/" + capacity;
+
+                    dm.send(new Frame(Tag.INSERT_FLY,sendMessage.getBytes()));
+
+                    receiveMessage = new String(dm.receive(Tag.LOGIN));
+
+                    if(receiveMessage.equals("INSERTED")){
+                        System.out.println("Voo adicionado com sucesso");
+                    }else{
+                        System.out.println("Capacidade do voo ataulizada");
+                    }
+
+
+
+
+
                     break;
 
                 case 2:
