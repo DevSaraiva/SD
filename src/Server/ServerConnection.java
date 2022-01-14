@@ -227,6 +227,7 @@ public class ServerConnection implements Runnable {
         LocalDate startDate = LocalDate.of(Integer.parseInt(dateS[2]),Integer.parseInt(dateS[1]),Integer.parseInt(dateS[0]));
         LocalDate endDate = LocalDate.of(Integer.parseInt(dateE[2]),Integer.parseInt(dateE[1]),Integer.parseInt(dateE[0]));
         String codReserve = info.bookTrip(username,route,startDate,endDate);
+        System.out.println(codReserve);
 
         tC.send(new Frame(Tag.BOOK_TRIP,codReserve.getBytes()));
     }

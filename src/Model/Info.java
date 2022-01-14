@@ -315,6 +315,8 @@ public class Info {
             LocalDate testDate = startDate;
             boolean found = false;
             LocalDate foundDate = null;
+            if (!verifyRoute(route))  return "ROUTE_NOT_POSSIBLE";
+
             while(!found && (testDate.isBefore(endDate) || testDate.isEqual(endDate))) {
                     if (verifyCloseDay(testDate)){
                         // se o verify der true ou seja o dia esta encerrado
@@ -332,13 +334,13 @@ public class Info {
                             foundDate = testDate;
                             found = true;
                         } else {
-                            testDate.plusDays(1);
+                            testDate = testDate.plusDays(1);
                         }
 
                     }
             }
             if (found) {
-                 codReserve = registerFlight(acountID,route,foundDate);
+                 codReserve = registerFlight(acountID,route,foundDate) + "/" + foundDate.toString();
             }
             else  {
                  codReserve = "NO_POSSIBLE";
@@ -352,15 +354,34 @@ public class Info {
         return this.closedScheduleList.contains(date);
     }
 
-
+    public boolean verifyRoute( List<String> route) {
+        boolean b = true;
+        for (int i=0; i < route.size() - 1; i++){
+            if (this.flightsMap.containsKey(route.get(i))) {
+                List<Flight> destinations = this.flightsMap.get(route.get(i));
+                Flight f = null;
+                f = getFlightFromList(destinations,route.get(i+1));
+                if (f == null) {
+                    b = false;
+                    break;
+                }
+            } else {
+                b = false;
+                break;
+            }
+        }
+        return b;
+    }
 
     public boolean checkFlightDate(String originCity,String destinationCity,LocalDate date) {
         boolean r = false;
-        List<Flight> destinations = this.flightsMap.get(originCity);
-        Flight destination = getFlightFromList(destinations,destinationCity);
-        if (destination != null) {
-            // FIXME precisa de lock ?? pq se tiverem dois ao mesmo tempo a perguntar e so tiver um lugar vao os dois registar e so ha um lugar
-            if (destination.seatsLeft(date) > 0) r = true;
+        if (this.flightsMap.containsKey(originCity)) {
+            List<Flight> destinations = this.flightsMap.get(originCity);
+            Flight destination = getFlightFromList(destinations, destinationCity);
+            if (destination != null) {
+                // FIXME precisa de lock ?? pq se tiverem dois ao mesmo tempo a perguntar e so tiver um lugar vao os dois registar e so ha um lugar
+                if (destination.seatsLeft(date) > 0) r = true;
+            }
         }
         return r;
     }

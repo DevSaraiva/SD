@@ -169,7 +169,7 @@ public class Client {
                     String destination = stdin.readLine();
                     int capacity = -1;
                     while (capacity == -1) { // enquanto a opcao introduzida for invalida
-                        System.out.println("\nInsira o valor correspondente à capcidade: \n");
+                        System.out.println("\nInsira o valor correspondente à capacidade: \n");
                         capacity = readOptionInt(1000,stdin);
                     }
                     sendMessage = origin + "/" + destination + "/" + capacity;
@@ -220,6 +220,10 @@ public class Client {
                     // user-> Reservar viagem
                     System.out.println("\nIntroduza o percurso completo com todas as escalas no formato Origem-Escala-...-Destino");
                     String route = stdin.readLine();
+                    if (route.split("-").length <= 1) {
+                        System.out.println("Formato inválido.");
+                        break;
+                    }
                     System.out.println("\nIntroduza agora o intervalo de datas que pretende fazer a viagem começando por indicar a data de inicio no formato D/M/A:");
                     LocalDate startDate = readDate(stdin);
                     System.out.println("\nIntroduza agora a data final do intervalo no formato D/M/A:");
@@ -231,10 +235,14 @@ public class Client {
                     dm.send(fs);
 
                     receiveMessage = new String(dm.receive(Tag.BOOK_TRIP));
-                    if(receiveMessage.equals("NO_POSSIBLE")) {
+                    if (receiveMessage.equals("ROUTE_NOT_POSSIBLE")) {
+                        System.out.println("O percurso que introduziu não é possivel.");
+                    }
+                    else if(receiveMessage.equals("NO_POSSIBLE")) {
                         System.out.println("Não é possível efectuar a viagem no intervalo de datas indicado.");
                     } else {
-                        System.out.println("A reserva foi registada com sucesso. O código da reserva é " + receiveMessage + ".");
+                        String[] msg = receiveMessage.split("/");
+                        System.out.println("A viagem ficoun reservada para dia " + msg[1] + " . O código da reserva é " + msg[0] + ".");
                     }
 
                     break;
