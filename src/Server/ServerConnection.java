@@ -142,7 +142,6 @@ public class ServerConnection implements Runnable {
 
         tC.send(new Frame(Tag.LOGIN,res.getBytes()));
 
-        System.out.println(info.getUsersLogged());
     }
 
 
