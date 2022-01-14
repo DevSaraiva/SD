@@ -227,7 +227,7 @@ public class Info {
 
 
     // Encerramento de um dia
-    // posteriormente devolver boolean para o caso se o dia ja estava encerrado ou nao ???
+    // FIXME posteriormente devolver boolean para o caso se o dia ja estava encerrado ou nao ???
     public void closeDay(LocalDate date) {
        this.closedScheduleMap.put(date,true);
     }
