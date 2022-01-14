@@ -162,7 +162,7 @@ public class Info {
 
     //0 PARA PASS ERRADA
     //1 PARA USER
-    //2 PARA UTILIZADOR
+    //2 PARA ADMIN
     //3 PARA CONTA INEXISTENTE
 
     public int verifyLogin(String user, String password){
@@ -176,7 +176,7 @@ public class Info {
                 else res = 1;
             }
         }else {
-            res = 4;
+            res = 3;
         }
 
         return res;

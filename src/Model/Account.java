@@ -17,6 +17,7 @@ public class Account implements Serializable {
     public Account (String userID, String password, boolean administrador) {
         this.userID = userID;
         this.password = password;
+        this.administrador = administrador;
         this.reservations = new HashMap<>();
     }
 

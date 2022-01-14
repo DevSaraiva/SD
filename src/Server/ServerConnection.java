@@ -93,11 +93,13 @@ public class ServerConnection implements Runnable {
         String res = switch (logged) {
             case 0 -> "PASSWORD";
             case 1 -> "USER";
-            case 3 -> "ADMIN";
-            case 4 -> "NOTFOUND";
+            case 2 -> "ADMIN";
+            case 3 -> "NOTFOUND";
             default -> null;
         };
 
+
+        System.out.println(logged);
         tC.send(new Frame(Tag.LOGIN,res.getBytes()));
 
     }
