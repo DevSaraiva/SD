@@ -9,7 +9,7 @@ public class Flight implements Serializable {
 
     String destination;
     int capacity;
-    Map<LocalDate, Integer> occupations;
+    Map<LocalDate, Integer> occupations; // so tem os dias de viagem ja registadas
 
 
 
@@ -17,7 +17,7 @@ public class Flight implements Serializable {
     public Flight (String destination, int capacity, Map<LocalDate, Integer> occupations) {
         this.destination = destination;
         this.capacity = capacity;
-        setOccupations(occupations);
+        this.occupations = occupations;
     }
 
 
@@ -57,7 +57,12 @@ public class Flight implements Serializable {
 
 
     public int getOccupationDate (LocalDate date) {
-        return occupations.get(date);
+        if (occupations.containsKey(date)) {
+            return occupations.get(date);
+        } else {
+            return 0;
+        }
+
     }
 
     public void setOccupationDate (LocalDate date, int ocupation) {
@@ -67,7 +72,13 @@ public class Flight implements Serializable {
 
     // FIXME adicionar lock depois pq se tiverem dois ao mesmo tempo podem ler 1 lugar disponivel os dois
     public int seatsLeft (LocalDate date) {
-        return (this.capacity - getOccupationDate(date));
+        if ( this.occupations.containsKey(date)) {
+            return (this.capacity - getOccupationDate(date));
+        } else {
+            return capacity;
+        }
     }
+
+
 
 }
