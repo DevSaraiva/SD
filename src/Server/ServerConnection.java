@@ -63,8 +63,10 @@ public class ServerConnection implements Runnable {
 
     private void signup(Frame frame) throws IOException {
 
-        String username = frame.username;
-        String password = new String(frame.data);
+        String[] received = new String(frame.data).split("/");
+
+        String username = received[0];
+        String password = received[1];
 
         boolean created = info.createAccount(username,password,false);
 
@@ -75,39 +77,33 @@ public class ServerConnection implements Runnable {
             res = "USER-EXISTS";
         }
 
-        tC.send(new Frame(Tag.SIGNUP,username,res.getBytes()));
+        tC.send(new Frame(Tag.SIGNUP,res.getBytes()));
 
     }
 
     private void login(Frame frame) throws IOException {
 
-        String username = frame.username;
-        String password = new String(frame.data);
+        String[] received = new String(frame.data).split("/");
+
+        String username = received[0];
+        String password = received[1];
 
         int logged = info.verifyLogin(username,password);
-        String res = null;
 
-        switch (logged){
+        String res = switch (logged) {
+            case 0 -> "PASSWORD";
+            case 1 -> "USER";
+            case 2 -> "ADMIN";
+            case 3 -> "NOTFOUND";
+            default -> null;
+        };
 
-            case 0 :
-                res = "PASSWORD";
-                break;
-            case 1 :
-                res = "USER";
-                break;
 
-            case 2 :
-                res = "ADMIN";
-                break;
-
-            case 4 :
-                res = "NOTFOUND";
-
-        }
-
-        tC.send(new Frame(Tag.LOGIN,username,res.getBytes()));
+        System.out.println(logged);
+        tC.send(new Frame(Tag.LOGIN,res.getBytes()));
 
     }
+
 
     private void logout() throws IOException {
         this.tC.close();

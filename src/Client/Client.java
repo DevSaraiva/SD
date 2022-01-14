@@ -42,6 +42,7 @@ public class Client {
             String password = null;
             Frame fs = null;
             String res = null;
+            String send = null;
 
 
             switch (optionAuthenticated) {
@@ -53,7 +54,8 @@ public class Client {
                     password = stdin.readLine();
 
 
-                    fs = new Frame(Tag.SIGNUP, username, password.getBytes());
+                    send = username + "/" + password;
+                    fs = new Frame(Tag.SIGNUP, send.getBytes());
                     dm.send(fs);
 
                     res = new String(dm.receive(Tag.SIGNUP));
@@ -74,7 +76,8 @@ public class Client {
                     System.out.print("\nIntroduza o password\n");
                     password = stdin.readLine();
 
-                    fs = new Frame(Tag.LOGIN, username, password.getBytes());
+                    send = username + "/" + password;
+                    fs = new Frame(Tag.LOGIN, send.getBytes());
                     dm.send(fs);
 
                     res = new String(dm.receive(Tag.LOGIN));
@@ -105,12 +108,13 @@ public class Client {
                 System.out.println("Insira o valor correspondente à operação desejada: \n"
                         + "1) Inserir informação sobre voos , introduzindo Origem, Destino e Capacidade\n"
                         + "2) Encerramento de um dia, impedindo novas reservas e cancelamentos de reservas para esse mesmo dia\n"
+                        + "3) Encerrar servidor\n"
                         + "\n"
                         + "0) Sair.\n");
 
                 while (option == -1) { // enquanto a opcao introduzida for invalida
                     System.out.println("\nInsira o valor correspondente à operação desejada: \n");
-                    option = readOptionInt(2, stdin);
+                    option = readOptionInt(3, stdin);
                 }
 
             } else { // typeUser == "user"
@@ -119,7 +123,7 @@ public class Client {
                         + "serviço a escolha de uma data em que a viagem seja possível\n"
                         + "2) Cancelar reserva de uma viagem, indicando o código de reserva \n"
                         + "3) Oter lista de todas os voos existentes (lista de pares origem → destino) \n"
-                        + "\n"
+                        +"\n"
                         + "0) Sair.\n");
 
                 while (option == -1) { // enquanto a opcao introduzida for invalida
@@ -127,7 +131,7 @@ public class Client {
                     option = readOptionInt(3, stdin);
                 }
                 if (option != 0) { // se for o sair nao soma 2
-                    option = option + 2; // 1 2 3 passa a ser opcoes 3 4 5
+                    option = option + 3; // 1 2 3 passa a ser opcoes 3 4 5
                 }
             }
 
@@ -158,14 +162,18 @@ public class Client {
                     break;
 
                 case 3:
-                    // user-> Reservar viagem
+                    // admin-> Encerrar servidor
                     break;
 
                 case 4:
-                    // user-> Cancelar reserva de uma viagem, indicando o código de reserva
+                    // user-> Reservar viagem
                     break;
 
                 case 5:
+                    // user-> Cancelar reserva de uma viagem, indicando o código de reserva
+                    break;
+
+                case 6:
                     // user -> Oter lista de todas os voos existentes (lista de pares origem →
                     // destino)
                     break;
@@ -173,7 +181,7 @@ public class Client {
 
                 case 0:
                     System.out.println("Até à próxima... :)");
-                    fs = new Frame(Tag.LOGOUT, "dfgsfdsdf", new byte[0]); //FIXME
+                    fs = new Frame(Tag.LOGOUT,new byte[0]);
                     dm.send(fs);
                     exit = true;
                     break;

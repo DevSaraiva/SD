@@ -7,12 +7,10 @@ public class Frame {
     }
 
     public final Tag tag;
-    public String username;
     public final byte[] data;
 
-    public Frame(Tag tagG, String username, byte[] dataG) {
+    public Frame(Tag tagG, byte[] dataG) {
         tag = tagG;
-        this.username = username;
         data = dataG;
     }
 }
