@@ -34,8 +34,6 @@ public class Info {
     private ReentrantReadWriteLock.WriteLock wl;
 
 
-
-
     public Info(Server server) {
 
         this.flightsMap = new HashMap<>();
@@ -78,25 +76,18 @@ public class Info {
     }
 
 
-
-    public void wakeup(){
+    public void wakeup() {
         this.s.wakeup();
     }
 
 
-    public Server getS() {
-        return s;
-    }
-
-    public void closeServer(){
+    public void closeServer() {
 
         wl.lock();
 
-        try{
+        try {
             this.online = false;
-        }
-
-        finally {
+        } finally {
             wl.unlock();
         }
     }
@@ -104,11 +95,9 @@ public class Info {
     public void increaseUsersLogged() {
         this.wl.lock();
 
-        try{
+        try {
             this.usersLogged++;
-        }
-
-        finally {
+        } finally {
             this.wl.unlock();
         }
     }
@@ -116,22 +105,35 @@ public class Info {
     public void decreaseUsersLogged() {
         this.wl.lock();
 
-        try{
+        try {
             this.usersLogged--;
-        }
-
-        finally {
+        } finally {
             this.wl.unlock();
         }
     }
 
 
     public int getUsersLogged() {
-        return usersLogged;
+        this.rl.lock();
+
+        try {
+            return usersLogged;
+        } finally {
+            this.rl.unlock();
+        }
+
     }
 
-    public boolean isOnline(){
-        return this.online;
+    public boolean isOnline() {
+        this.rl.lock();
+
+        try {
+            return this.online;
+
+        } finally {
+            this.rl.unlock();
+        }
+
     }
 
 
@@ -219,17 +221,24 @@ public class Info {
 
     //Funções de manipulação de login e signup
 
-    public boolean createAccount(String username, String password, boolean admin){
+    public boolean createAccount(String username, String password, boolean admin) {
 
-        boolean res = false;
 
-        if(!this.accountsMap.containsKey(username)){
-            Account account  = new Account(username,password,admin);
-            res = true;
-            this.accountsMap.put(username,account);
+        this.wl.lock();
+
+        try {
+            boolean res = false;
+
+            if (!this.accountsMap.containsKey(username)) {
+                Account account = new Account(username, password, admin);
+                res = true;
+                this.accountsMap.put(username, account);
+            }
+
+            return res;
+        } finally {
+            this.wl.unlock();
         }
-
-        return res;
 
 
     }
@@ -239,70 +248,87 @@ public class Info {
     //2 PARA ADMIN
     //3 PARA CONTA INEXISTENTE
 
-    public int verifyLogin(String user, String password){
+    public int verifyLogin(String user, String password) {
 
-        int res = 0;
+        wl.lock();
 
-        if(this.accountsMap.containsKey(user)){
-            Account account = this.accountsMap.get(user);
-            if(account.getPassword().equals(password)){
-                if(account.getAdministrador()) res = 2;
-                else res = 1;
+        try {
+            int res = 0;
+
+            if (this.accountsMap.containsKey(user)) {
+                Account account = this.accountsMap.get(user);
+                if (account.getPassword().equals(password)) {
+                    if (account.getAdministrador()) res = 2;
+                    else res = 1;
+                }
+            } else {
+                res = 3;
             }
-        }else {
-            res = 3;
+
+            return res;
+        } finally {
+            wl.unlock();
         }
 
-        return res;
-
     }
-
-
 
 
 //3. Inserção de informação sobre voos (origem, destino, capacidade) pelo administrador.
 
     //devolve true caso insira
     //devolve false caso atualize
-    //TODO implementar os locks aqui!!!
-    public boolean insertFlight (String origin, String destination, int capacity) {
+    public boolean insertFlight(String origin, String destination, int capacity) {
 
-        boolean inserted = false;
+        wl.lock();
 
-        if (flightsMap.containsKey(origin)) {   //verify if the map with all the flights contains the desired flight (searching for the origin which is the key)
-            List<Flight> flightsFromOrigin = flightsMap.get(origin);    //get the list of Flights that takes departure from that origin
-            Flight flight = getFlightFromList(flightsFromOrigin, destination);
-            if (flight != null) {
-                flight.setCapacity(capacity);//once you got it, simply go to the map of the occupations and update the occupation on the desired date (which comes from an argument)
-                inserted = false;
-            }
-            else {      //if the list doesn't contain the flight with the desired destination, we create and add it to the list
-                Flight newFlight =  new Flight(destination, capacity, new HashMap<>());
-                List<Flight> newList = flightsMap.get(origin);
-                newList.add(newFlight);
+        try {
+            boolean inserted = false;
+
+            if (flightsMap.containsKey(origin)) {   //verify if the map with all the flights contains the desired flight (searching for the origin which is the key)
+                List<Flight> flightsFromOrigin = flightsMap.get(origin);    //get the list of Flights that takes departure from that origin
+                Flight flight = getFlightFromList(flightsFromOrigin, destination);
+                if (flight != null) {
+                    flight.setCapacity(capacity);//once you got it, simply go to the map of the occupations and update the occupation on the desired date (which comes from an argument)
+                    inserted = false;
+                } else {      //if the list doesn't contain the flight with the desired destination, we create and add it to the list
+                    Flight newFlight = new Flight(destination, capacity, new HashMap<>());
+                    List<Flight> newList = flightsMap.get(origin);
+                    newList.add(newFlight);
+                    flightsMap.put(origin, newList);
+                    inserted = true;
+                }
+            } else {      //in case the origin isn't in the flightsMap
+                Flight flight = new Flight(destination, capacity, new HashMap<>());
+                List<Flight> newList = new ArrayList<>();
+                newList.add(flight);
                 flightsMap.put(origin, newList);
                 inserted = true;
             }
+            return inserted;
+
+        } finally {
+            wl.unlock();
         }
-        else {      //in case the origin isn't in the flightsMap
-            Flight flight = new Flight(destination, capacity, new HashMap<>());
-            List<Flight> newList = new ArrayList<>();
-            newList.add(flight);
-            flightsMap.put(origin, newList);
-            inserted = true;
-        }
-        return  inserted;
+
     }
 
 
     // Encerramento de um dia
     // devolve true se o dia ainda nao tava fechado e pos fechado ou false se ja estava fechado
     public boolean closeDay(LocalDate date) {
-        if (verifyCloseDay(date)) {
-            return false;
-        } else {
-            this.closedScheduleMap.put(date,true);
-            return true;
+
+        wl.lock();
+
+        try {
+
+            if (verifyCloseDay(date)) {
+                return false;
+            } else {
+                this.closedScheduleMap.put(date, true);
+                return true;
+            }
+        } finally {
+            wl.unlock();
         }
 
     }
@@ -310,113 +336,177 @@ public class Info {
     // recebe lista com o percurso completo como uma lista de String de todas as cidades por onde passa
     // primeira é a origem a ultima é o destino
     // e um intervalo de datas
-    public String bookTrip(String acountID, List<String> route,LocalDate startDate, LocalDate endDate) {
+
+    public String bookTrip(String acountID, List<String> route, LocalDate startDate, LocalDate endDate) {
+
+
+        wl.lock();
+
+        try {
+
+
             String codReserve = null;
             LocalDate testDate = startDate;
             boolean found = false;
             LocalDate foundDate = null;
-            while(!found && (testDate.isBefore(endDate) || testDate.isEqual(endDate))) {
-                    if (verifyCloseDay(testDate)){
-                        // se o verify der true ou seja o dia esta encerrado
-                        testDate = testDate.plusDays(1);
+            while (!found && (testDate.isBefore(endDate) || testDate.isEqual(endDate))) {
+                if (verifyCloseDay(testDate)) {
+                    // se o verify der true ou seja o dia esta encerrado
+                    testDate = testDate.plusDays(1);
 
-                    } else {
-                        // se o dia nao estiver encerrado
-                        boolean possible = true;
-                        for (int i = 0; (i < route.size() - 1) && possible; i++) {
-                            String originCity = route.get(i);
-                            String destinationCity = route.get(i+1);
-                            possible = checkFlightDate(originCity,destinationCity,testDate); // se nao for possivel fica false e salta fora do for
-                        }
-                        if (possible) {
-                            foundDate = testDate;
-                            found = true;
-                        } else {
-                            testDate.plusDays(1);
-                        }
-
+                } else {
+                    // se o dia nao estiver encerrado
+                    boolean possible = true;
+                    for (int i = 0; (i < route.size() - 1) && possible; i++) {
+                        String originCity = route.get(i);
+                        String destinationCity = route.get(i + 1);
+                        possible = checkFlightDate(originCity, destinationCity, testDate); // se nao for possivel fica false e salta fora do for
                     }
+                    if (possible) {
+                        foundDate = testDate;
+                        found = true;
+                    } else {
+                        testDate.plusDays(1);
+                    }
+
+                }
             }
             if (found) {
-                 codReserve = registerFlight(acountID,route,foundDate);
-            }
-            else  {
-                 codReserve = "NO_POSSIBLE";
+                codReserve = registerFlight(acountID, route, foundDate);
+            } else {
+                codReserve = "NO_POSSIBLE";
             }
             return codReserve;
-    }
-
-
-
-    public boolean verifyCloseDay (LocalDate date){
-        return this.closedScheduleMap.get(date);
-    }
-
-
-
-    public boolean checkFlightDate(String originCity,String destinationCity,LocalDate date) {
-        boolean r = false;
-        List<Flight> destinations = this.flightsMap.get(originCity);
-        Flight destination = getFlightFromList(destinations,destinationCity);
-        if (destination != null) {
-            // FIXME precisa de lock ?? pq se tiverem dois ao mesmo tempo a perguntar e so tiver um lugar vao os dois registar e so ha um lugar
-            if (destination.seatsLeft(date) > 0) r = true;
+        } finally {
+            wl.unlock();
         }
-        return r;
+
     }
 
 
+    public boolean verifyCloseDay(LocalDate date) {
 
-    public Flight getFlightFromList(List<Flight> flights,String destination){
-        Flight res = null;
-        for (Flight f : flights) {
-            if (f.getDestination().compareTo(destination) == 0) {
-                res = f;
-                break;
+
+        rl.lock();
+
+        try {
+
+            return this.closedScheduleMap.get(date);
+
+        } finally {
+            rl.unlock();
+        }
+
+    }
+
+
+    public boolean checkFlightDate(String originCity, String destinationCity, LocalDate date) {
+
+        rl.lock();
+
+        try {
+
+            boolean r = false;
+            List<Flight> destinations = this.flightsMap.get(originCity);
+            Flight destination = getFlightFromList(destinations, destinationCity);
+            if (destination != null) {
+                if (destination.seatsLeft(date) > 0) r = true;
             }
+            return r;
+
+        } finally {
+            rl.unlock();
         }
-        return res;
     }
 
+
+    public Flight getFlightFromList(List<Flight> flights, String destination) {
+
+        rl.lock();
+
+        try {
+
+            Flight res = null;
+            for (Flight f : flights) {
+                if (f.getDestination().compareTo(destination) == 0) {
+                    res = f;
+                    break;
+                }
+            }
+            return res;
+
+        } finally {
+            rl.unlock();
+        }
+    }
 
 
     // regista o voo quando ja sabe que é possivel nesta data
-    public String registerFlight (String acountId,List<String> route, LocalDate date) {
-        for (int i = 0; (i < route.size() - 1); i++) {
-            String originCity = route.get(i);
-            String destinationCity = route.get(i+1);
-            Flight f = getFlightFromList(this.flightsMap.get(originCity),destinationCity);
-            int newOcupation = f.getOccupationDate(date) + 1;
-            f.setOccupationDate(date,newOcupation);
+    public String registerFlight(String acountId, List<String> route, LocalDate date) {
+
+        wl.lock();
+
+        try {
+
+            for (int i = 0; (i < route.size() - 1); i++) {
+                String originCity = route.get(i);
+                String destinationCity = route.get(i + 1);
+                Flight f = getFlightFromList(this.flightsMap.get(originCity), destinationCity);
+                int newOcupation = f.getOccupationDate(date) + 1;
+                f.setOccupationDate(date, newOcupation);
+            }
+
+            String idReservation = Integer.toString(idCounterReservations);
+            idCounterReservations++;
+            Reservation res = new Reservation(idReservation, date, route);
+            Account acc = this.accountsMap.get(acountId);
+            acc.addReservation(idReservation, res);
+            return idReservation;
+
+        } finally {
+            wl.unlock();
         }
 
-        String idReservation = Integer.toString(idCounterReservations);
-        idCounterReservations++;
-        Reservation res = new Reservation(idReservation,date,route);
-        Account acc = this.accountsMap.get(acountId);
-        acc.addReservation(idReservation,res);
-        return idReservation;
+
     }
 
     // se nao devolver nenhuma exception foi cancelado com suceso
     // quem chamar esta funcao depois tratar a exception que ja leva la o codReserva
-    public void cancelFlight (String idUser, String codReservation) throws ReservationNotExistException, ReservationAlreadyCanceledException {
-        Account acc = this.accountsMap.get(idUser);
-        acc.cancelReservation(codReservation);
+    public void cancelFlight(String idUser, String codReservation) throws ReservationNotExistException, ReservationAlreadyCanceledException {
+
+        wl.lock();
+
+        try {
+
+            Account acc = this.accountsMap.get(idUser);
+            acc.cancelReservation(codReservation);
+
+        } finally {
+            wl.unlock();
+        }
+
     }
 
-    public List<AbstractMap.Entry<String,String>> getFlightsList () {
-        List< AbstractMap.Entry<String,String> > res = new ArrayList<>();
-        for (Map.Entry<String,List<Flight>> flightsOrigin : this.flightsMap.entrySet()){
+    public List<AbstractMap.Entry<String, String>> getFlightsList() {
+
+        wl.lock();
+
+        try {
+
+            List<AbstractMap.Entry<String, String>> res = new ArrayList<>();
+            for (Map.Entry<String, List<Flight>> flightsOrigin : this.flightsMap.entrySet()) {
                 String originCity = flightsOrigin.getKey();
                 for (Flight f : flightsOrigin.getValue()) {
-                    res.add(new AbstractMap.SimpleEntry(originCity,f.getDestination()));
+                    res.add(new AbstractMap.SimpleEntry(originCity, f.getDestination()));
                 }
+            }
+            return res;
+
+        } finally {
+            wl.unlock();
         }
-        return res;
+
     }
-
-
 
 
 //FUNCIONALIDADES ADICIONAIS:
@@ -424,62 +514,83 @@ public class Info {
     //tino, limitados a duas escalas (três voos). Minimize a quantidade de dados transferidos.
 
 
-    public List<List<String>> percursosComEscalas (String origin, String destination) throws OriginNotFoundOnMapException {
-        List<List<String>> res = new ArrayList<>();
-        if(!flightsMap.containsKey(origin)) {
-            throw new OriginNotFoundOnMapException(origin);
-        }
-        List<Flight> flightsFromOrigin = flightsMap.get(origin);        //TODO: criar a exceção de quando nao consegue dar get
-        List<String> subList = new ArrayList<>();
-        Flight fl;
+    public List<List<String>> percursosComEscalas(String origin, String destination) throws OriginNotFoundOnMapException {
 
-        if ((fl = hasDestination(flightsFromOrigin, destination)) != null) {                  //se tem destino diretamente para o pretendido, adiciona à lista e dá logo return
-            subList.add(fl.getDestination());
-            res.add(subList);
-            return res;
-        }
-        else {                                                                                  //caso nao tenha voo direto para o destino, pegar nos destinos desse e calcular se há algum que vá para o destino final
-            for (Flight f : flightsFromOrigin) {
-                List<Flight> flightsFromItermediate = flightsMap.get(f.getDestination());
-                //subList.add(fl.getDestination());
-                if ((fl = hasDestination(flightsFromItermediate, destination)) != null) {          //se tem destino da primeira escala para o pretendido, adicionamos essa escala à resposta e devolvemos
-                    subList.add(f.getDestination());
-                    res.add(subList);
-                    return res;
-                }
-                else {                                                                          //caso contrario, vamos verificar se há uma segunda escala que nos leve para esse destino
-                    subList.add(f.getDestination()); //adicionar o anterior (primeira escala) à resposta
-                    for(Flight f2 : flightsFromItermediate) {                                    //procurar se há uma segunda escala que nos leve ao destino, caso conntrario retornamos null pq atingimos o nº maximo de escalas
-                        List<Flight> flightToDestination = flightsMap.get(f2.getDestination());
-                        if (hasDestination(flightToDestination, destination) != null) {
-                            subList.add(f2.getDestination());
-                            res.add(subList);
-                            break;
-                        }
-                        else {
-                            return null;
+
+        wl.lock();
+
+        try {
+
+            List<List<String>> res = new ArrayList<>();
+            if (!flightsMap.containsKey(origin)) {
+                throw new OriginNotFoundOnMapException(origin);
+            }
+            List<Flight> flightsFromOrigin = flightsMap.get(origin);        //TODO: criar a exceção de quando nao consegue dar get
+            List<String> subList = new ArrayList<>();
+            Flight fl;
+
+            if ((fl = hasDestination(flightsFromOrigin, destination)) != null) {                  //se tem destino diretamente para o pretendido, adiciona à lista e dá logo return
+                subList.add(fl.getDestination());
+                res.add(subList);
+                return res;
+            } else {                                                                                  //caso nao tenha voo direto para o destino, pegar nos destinos desse e calcular se há algum que vá para o destino final
+                for (Flight f : flightsFromOrigin) {
+                    List<Flight> flightsFromItermediate = flightsMap.get(f.getDestination());
+                    //subList.add(fl.getDestination());
+                    if ((fl = hasDestination(flightsFromItermediate, destination)) != null) {          //se tem destino da primeira escala para o pretendido, adicionamos essa escala à resposta e devolvemos
+                        subList.add(f.getDestination());
+                        res.add(subList);
+                        return res;
+                    } else {                                                                          //caso contrario, vamos verificar se há uma segunda escala que nos leve para esse destino
+                        subList.add(f.getDestination()); //adicionar o anterior (primeira escala) à resposta
+                        for (Flight f2 : flightsFromItermediate) {                                    //procurar se há uma segunda escala que nos leve ao destino, caso conntrario retornamos null pq atingimos o nº maximo de escalas
+                            List<Flight> flightToDestination = flightsMap.get(f2.getDestination());
+                            if (hasDestination(flightToDestination, destination) != null) {
+                                subList.add(f2.getDestination());
+                                res.add(subList);
+                                break;
+                            } else {
+                                return null;
+                            }
                         }
                     }
                 }
             }
+
+            return null;
+
+        } finally {
+            wl.unlock();
         }
 
-        return null;
+
     }
 
 
     public Flight hasDestination(List<Flight> flightsList, String destination) {
-        for (Flight f : flightsList) {
-            if (f.getDestination().equals(destination)) {
-                return f;
+
+
+        wl.lock();
+
+        try {
+
+            for (Flight f : flightsList) {
+                if (f.getDestination().equals(destination)) {
+                    return f;
+                }
             }
+            return null;
+
+        } finally {
+            wl.unlock();
         }
-        return null;
+
     }
-
-
-
-
-
-
 }
+
+
+
+
+
+
+

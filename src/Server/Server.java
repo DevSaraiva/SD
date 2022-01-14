@@ -17,7 +17,14 @@ public class Server {
 
 
     public void wakeup() {
-        this.c.signalAll();
+
+        this.l.lock();
+        try{
+            this.c.signalAll();
+        }
+        finally {
+            this.l.unlock();
+        }
     }
 
 

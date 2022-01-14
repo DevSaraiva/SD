@@ -150,17 +150,8 @@ public class ServerConnection implements Runnable {
         this.tC.close();
         this.info.decreaseUsersLogged();
         this.online = false;
-        Server s = info.getS();
+        this.info.wakeup();
 
-        s.l.lock();
-        s.l.lock();
-        try{
-            this.info.wakeup();
-
-        }
-        finally {
-            s.l.unlock();
-        }
     }
 
 
