@@ -19,7 +19,6 @@ public class ServerConnection implements Runnable {
         this.info = info;
         this.username = null;
         this.loggedIn = false;
-        this.online = true;
     }
 
     @Override
@@ -45,6 +44,13 @@ public class ServerConnection implements Runnable {
                         case LOGOUT:
                             logout();
                             break;
+                        case INSERT_FLY:
+                            insertFLY(frame);
+                            break;
+
+                        case CLOSE_SERVICE:
+                            break;
+
                         default:
                             break;
                     }
@@ -73,6 +79,8 @@ public class ServerConnection implements Runnable {
         String res;
         if(created){
             res = "REGISTADO";
+            this.username = username;
+            this.loggedIn = true;
         }else {
             res = "USER-EXISTS";
         }
@@ -98,8 +106,11 @@ public class ServerConnection implements Runnable {
             default -> null;
         };
 
+        if(logged == 1 || logged == 2){
+            this.username = username;
+            this.loggedIn = true;
+        }
 
-        System.out.println(logged);
         tC.send(new Frame(Tag.LOGIN,res.getBytes()));
 
     }
@@ -108,6 +119,28 @@ public class ServerConnection implements Runnable {
     private void logout() throws IOException {
         this.tC.close();
         this.online = false;
+    }
+
+
+    private void  insertFLY(Frame frame) throws IOException {
+
+        String[] received = new String(frame.data).split("/");
+
+        String origin = received[0];
+        String destination = received[1];
+        int capcity = Integer.parseInt(received[2]);
+
+
+        boolean inserted = info.insertFlight(origin,destination,capcity);
+
+        String res = null;
+        if(inserted){
+            res = "INSERTED";
+        }else{
+            res = "UPDATED";
+        }
+        tC.send(new Frame(Tag.INSERT_FLY,res.getBytes()));
+
     }
 
 }

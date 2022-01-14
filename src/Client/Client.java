@@ -5,8 +5,11 @@ import java.net.*;
 import Model.Frame;
 import Model.Frame.Tag;
 import Server.TaggedConnection;
+import jdk.swing.interop.SwingInterOpUtils;
 
 import java.io.*;
+
+import java.nio.charset.StandardCharsets;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -151,6 +154,10 @@ public class Client {
 
 
             Frame fs = null;
+            String sendMessage;
+            String receiveMessage;
+
+
             String send = null;
             switch (option) {
 
@@ -160,11 +167,25 @@ public class Client {
                     String origin = stdin.readLine();
                     System.out.println("\nInsira a Destino:");
                     String destination = stdin.readLine();
-                    System.out.println("\nInsira a capacidade:");
-                    int capacity = readOptionInt(1000,stdin);
+                    System.out.println("\nInsira a capacidade: \n");
+                    int capacity = -1;
+                    while (capacity == -1) { // enquanto a opcao introduzida for invalida
+                        System.out.println("\nInsira o valor correspondente à operação desejada: \n");
+                        capacity = readOptionInt(1000,stdin);
+                    }
+                    System.out.println("capacidade : " + capacity);
+                    sendMessage = origin + "/" + destination + "/" + capacity;
 
-                    //String send ;
-                    //fs = new Frame(Tag.INSERT_FLY,"");
+                    dm.send(new Frame(Tag.INSERT_FLY,sendMessage.getBytes()));
+
+                    receiveMessage = new String(dm.receive(Tag.LOGIN));
+
+                    if(receiveMessage.equals("INSERTED")){
+                        System.out.println("Voo adicionado com sucesso");
+                    }else{
+                        System.out.println("Capacidade do voo ataulizada");
+                    }
+
 
                     break;
 
@@ -173,6 +194,9 @@ public class Client {
                     // FIXME posteriormente receber boolean para o caso se o dia ja estava encerrado ou nao ???
 
                     LocalDate date = readDate(stdin);
+
+                    // admin-> Encerramento de um dia, impedindo novas reservas e cancelamentos de
+                    // reservas para esse mesmo dia
                     send = date.getDayOfMonth() + "-" + date.getMonthValue() + "-" + date.getYear();
                     fs = new Frame(Tag.CLOSE_DAY,send.getBytes()); // FIXME FALTA FAZER NO SERVIDOR
                     dm.send(fs);
@@ -180,6 +204,13 @@ public class Client {
 
                 case 3:
                     // admin-> Encerrar servidor
+
+                    dm.send(new Frame(Tag.CLOSE_SERVICE,new byte[0]));
+
+
+
+
+
                     break;
 
                 case 4:
@@ -291,6 +322,7 @@ public class Client {
             System.out.println("Introduziu alguns dos valores Dia/Mês/Ano têm de ser inteiros!");
             return null;
         }
+
         LocalDate res = null;
         try {
             res = LocalDate.of(yearInt,monthInt,dayInt);
