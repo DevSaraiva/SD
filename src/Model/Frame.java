@@ -3,7 +3,7 @@ package Model;
 public class Frame {
 
     public enum Tag {
-        LOGIN, SIGNUP, LOGOUT, INSERT_FLY;
+        LOGIN, SIGNUP, LOGOUT, INSERT_FLY, CLOSE_DAY, CLOSE_SERVICE;
     }
 
     public final Tag tag;

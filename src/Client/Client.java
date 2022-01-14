@@ -7,6 +7,7 @@ import Model.Frame.Tag;
 import Server.TaggedConnection;
 
 import java.io.*;
+import java.time.LocalDate;
 
 public class Client {
 
@@ -142,21 +143,22 @@ public class Client {
             switch (option) {
 
                 case 1:
-                    System.out.println("\nInsira a Origem:\n");
+                    System.out.println("\nInsira a Origem:");
                     String origin = stdin.readLine();
-                    System.out.println("Origem : " + origin);
-                    System.out.println("\nInsira a Destino:\n");
+                    System.out.println("\nInsira a Destino:");
                     String destination = stdin.readLine();
-                    System.out.println("Destino : " + destination);
-                    System.out.println("\nInsira a capacidade: \n");
-                    int capacity = readOptionInt(500,stdin);
-                    System.out.println("capacidade : " + capacity);
-                    //fs = new Frame(Tag.INSERT_FLY,"")
+                    System.out.println("\nInsira a capacidade:");
+                    int capacity = readOptionInt(1000,stdin);
+
+                    //String send ;
+                    //fs = new Frame(Tag.INSERT_FLY,"");
                     // admin-> Inserir informação sobre voos , introduzindo Origem, Destino e
                     // Capacidade
                     break;
 
                 case 2:
+                    LocalDate date = readDate(stdin);
+                    fs = new Frame(Tag.CLOSE_DAY,"");
                     // admin-> Encerramento de um dia, impedindo novas reservas e cancelamentos de
                     // reservas para esse mesmo dia
                     break;
@@ -200,12 +202,52 @@ public class Client {
             } catch (NumberFormatException | IOException e) { // Não foi escrito um int
                 op = -1;
             }
-            if (op < 0 || op > opcoes) {
-                System.out.println("Opção Inválida!!!");
-                op = -1;
+            if (opcoes == 1000) { // 1000 é especifico para ilimitado e  neste caso so verifica se é > 0
+                if (op < 0) {
+                    System.out.println("Opção Inválida!!!");
+                }
+            } else {
+                if (op < 0 || op > opcoes) {
+                    System.out.println("Opção Inválida!!!");
+                    op = -1;
+                }
             }
+
         return op;
 
+    }
+
+    public static LocalDate readDate(BufferedReader stdin) {
+        LocalDate date = null;
+        while (date == null) {
+            System.out.println("Insira o dia que pretende encerrar no formato D/M/Y");
+
+            String data = null;
+            try {
+                data = stdin.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            String[] date_parse = data.split("/");
+
+            date = verifyDate(date_parse[0],date_parse[1],date_parse[2]);
+        }
+        return date;
+    }
+
+    public static LocalDate verifyDate(String day, String month, String year) {
+        int dayInt, monthInt, yearInt;
+        try {
+            dayInt = Integer.parseInt(day);
+            monthInt = Integer.parseInt(month);
+            yearInt = Integer.parseInt(year);
+        } catch (NumberFormatException e){
+            System.out.println("Introduziu alguns dos valores Dia/Mês/Ano têm de ser inteiros!");
+            return null;
+        }
+        LocalDate res = LocalDate.of(yearInt,monthInt,dayInt);
+        return res
     }
 
 }
