@@ -42,6 +42,7 @@ public class Client {
             String password = null;
             Frame fs = null;
             String res = null;
+            String send = null;
 
 
             switch (optionAuthenticated) {
@@ -53,7 +54,8 @@ public class Client {
                     password = stdin.readLine();
 
 
-                    fs = new Frame(Tag.SIGNUP, username, password.getBytes());
+                    send = username + "/" + password;
+                    fs = new Frame(Tag.SIGNUP, send.getBytes());
                     dm.send(fs);
 
                     res = new String(dm.receive(Tag.SIGNUP));
@@ -74,7 +76,8 @@ public class Client {
                     System.out.print("\nIntroduza o password\n");
                     password = stdin.readLine();
 
-                    fs = new Frame(Tag.LOGIN, username, password.getBytes());
+                    send = username + "/" + password;
+                    fs = new Frame(Tag.LOGIN, send.getBytes());
                     dm.send(fs);
 
                     res = new String(dm.receive(Tag.LOGIN));
@@ -163,7 +166,7 @@ public class Client {
 
                 case 0:
                     System.out.println("Até à próxima... :)");
-                    fs = new Frame(Tag.LOGOUT, "dfgsfdsdf", new byte[0]); //FIXME
+                    fs = new Frame(Tag.LOGOUT,new byte[0]);
                     dm.send(fs);
                     exit = true;
                     break;

@@ -23,7 +23,6 @@ public class TaggedConnection implements AutoCloseable {
         try {
             wl.lock();
             this.dos.writeUTF(frame.tag.name());
-            this.dos.writeUTF(frame.username);
             this.dos.writeInt(frame.data.length);
             this.dos.write(frame.data);
             this.dos.flush();
@@ -32,8 +31,8 @@ public class TaggedConnection implements AutoCloseable {
         }
     }
 
-    public void send(Tag tag, String username, byte[] data) throws IOException {
-        this.send(new Frame(tag, username, data));
+    public void send(Tag tag, byte[] data) throws IOException {
+        this.send(new Frame(tag, data));
     }
 
     public Frame receive() throws IOException {
@@ -43,7 +42,6 @@ public class TaggedConnection implements AutoCloseable {
         try {
             rl.lock();
             tag = Tag.valueOf(dis.readUTF());
-            username = dis.readUTF();
             int n = this.dis.readInt();
             data = new byte[n];
             this.dis.readFully(data);
@@ -55,7 +53,7 @@ public class TaggedConnection implements AutoCloseable {
             rl.unlock();
         }
 
-        return new Frame(tag, username, data);
+        return new Frame(tag, data);
     }
 
     @Override
