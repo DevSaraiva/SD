@@ -349,32 +349,37 @@ public class Info {
             LocalDate testDate = startDate;
             boolean found = false;
             LocalDate foundDate = null;
-            while (!found && (testDate.isBefore(endDate) || testDate.isEqual(endDate))) {
-                if (verifyCloseDay(testDate)) {
-                    // se o verify der true ou seja o dia esta encerrado
-                    testDate = testDate.plusDays(1);
+            if (!verifyRoute(route))  return "ROUTE_NOT_POSSIBLE";
 
-                } else {
-                    // se o dia nao estiver encerrado
-                    boolean possible = true;
-                    for (int i = 0; (i < route.size() - 1) && possible; i++) {
-                        String originCity = route.get(i);
-                        String destinationCity = route.get(i + 1);
-                        possible = checkFlightDate(originCity, destinationCity, testDate); // se nao for possivel fica false e salta fora do for
-                    }
-                    if (possible) {
-                        foundDate = testDate;
-                        found = true;
+            while(!found && (testDate.isBefore(endDate) || testDate.isEqual(endDate))) {
+                    if (verifyCloseDay(testDate)){
+                        // se o verify der true ou seja o dia esta encerrado
+                        testDate = testDate.plusDays(1);
+
                     } else {
-                        testDate.plusDays(1);
+                        // se o dia nao estiver encerrado
+                        boolean possible = true;
+                        for (int i = 0; (i < route.size() - 1) && possible; i++) {
+                            String originCity = route.get(i);
+                            String destinationCity = route.get(i+1);
+                            possible = checkFlightDate(originCity,destinationCity,testDate); // se nao for possivel fica false e salta fora do for
+                        }
+                        if (possible) {
+                            foundDate = testDate;
+                            found = true;
+                        } else {
+                            testDate = testDate.plusDays(1);
+                        }
+
                     }
 
                 }
-            }
+
             if (found) {
-                codReserve = registerFlight(acountID, route, foundDate);
-            } else {
-                codReserve = "NO_POSSIBLE";
+                 codReserve = registerFlight(acountID,route,foundDate) + "/" + foundDate.toString();
+            }
+            else  {
+                 codReserve = "NO_POSSIBLE";
             }
             return codReserve;
         } finally {
@@ -398,25 +403,44 @@ public class Info {
 
     }
 
+    public boolean verifyRoute( List<String> route) {
+        boolean b = true;
+        for (int i=0; i < route.size() - 1; i++){
+            if (this.flightsMap.containsKey(route.get(i))) {
+                List<Flight> destinations = this.flightsMap.get(route.get(i));
+                Flight f = null;
+                f = getFlightFromList(destinations,route.get(i+1));
+                if (f == null) {
+                    b = false;
+                    break;
+                }
+            } else {
+                b = false;
+                break;
+            }
+        }
+        return b;
+    }
 
-    public boolean checkFlightDate(String originCity, String destinationCity, LocalDate date) {
-
-        rl.lock();
-
+    public boolean checkFlightDate(String originCity,String destinationCity,LocalDate date) {
         try {
-
+            rl.lock();
             boolean r = false;
-            List<Flight> destinations = this.flightsMap.get(originCity);
-            Flight destination = getFlightFromList(destinations, destinationCity);
-            if (destination != null) {
-                if (destination.seatsLeft(date) > 0) r = true;
+            if (this.flightsMap.containsKey(originCity)) {
+                List<Flight> destinations = this.flightsMap.get(originCity);
+                Flight destination = getFlightFromList(destinations, destinationCity);
+                if (destination != null) {
+                    if (destination.seatsLeft(date) > 0) r = true;
+                }
             }
             return r;
-
-        } finally {
+        }finally {
             rl.unlock();
         }
+
     }
+
+
 
 
     public Flight getFlightFromList(List<Flight> flights, String destination) {
