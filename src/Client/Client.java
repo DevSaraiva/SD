@@ -9,6 +9,7 @@ import jdk.swing.interop.SwingInterOpUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 
 public class Client {
 
@@ -147,16 +148,14 @@ public class Client {
             switch (option) {
 
                 case 1:
+
                     // admin-> Inserir informação sobre voos , introduzindo Origem, Destino Capacidade
 
                     System.out.println("\nInsira a Origem:\n");
                     String origin = stdin.readLine();
-                    System.out.println("Origem : " + origin);
-                    System.out.println("\nInsira a Destino:\n");
+                    System.out.println("\nInsira a Destino:");
                     String destination = stdin.readLine();
-                    System.out.println("Destino : " + destination);
                     System.out.println("\nInsira a capacidade: \n");
-
                     int capacity = -1;
                     while (capacity == -1) { // enquanto a opcao introduzida for invalida
                         System.out.println("\nInsira o valor correspondente à operação desejada: \n");
@@ -176,18 +175,21 @@ public class Client {
                     }
 
 
-
-
-
-                    break;
-
                 case 2:
+                    LocalDate date = readDate(stdin);
                     // admin-> Encerramento de um dia, impedindo novas reservas e cancelamentos de
                     // reservas para esse mesmo dia
                     break;
 
                 case 3:
                     // admin-> Encerrar servidor
+
+                    dm.send(new Frame(Tag.CLOSE_SERVICE,new byte[0]));
+
+
+
+
+
                     break;
 
                 case 4:
@@ -225,12 +227,52 @@ public class Client {
             } catch (NumberFormatException | IOException e) { // Não foi escrito um int
                 op = -1;
             }
-            if (op < 0 || op > opcoes) {
-                System.out.println("Opção Inválida!!!");
-                op = -1;
+            if (opcoes == 1000) { // 1000 é especifico para ilimitado e  neste caso so verifica se é > 0
+                if (op < 0) {
+                    System.out.println("Opção Inválida!!!");
+                }
+            } else {
+                if (op < 0 || op > opcoes) {
+                    System.out.println("Opção Inválida!!!");
+                    op = -1;
+                }
             }
+
         return op;
 
+    }
+
+    public static LocalDate readDate(BufferedReader stdin) {
+        LocalDate date = null;
+        while (date == null) {
+            System.out.println("Insira o dia que pretende encerrar no formato D/M/Y");
+
+            String data = null;
+            try {
+                data = stdin.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            String[] date_parse = data.split("/");
+
+            date = verifyDate(date_parse[0],date_parse[1],date_parse[2]);
+        }
+        return date;
+    }
+
+    public static LocalDate verifyDate(String day, String month, String year) {
+        int dayInt, monthInt, yearInt;
+        try {
+            dayInt = Integer.parseInt(day);
+            monthInt = Integer.parseInt(month);
+            yearInt = Integer.parseInt(year);
+        } catch (NumberFormatException e){
+            System.out.println("Introduziu alguns dos valores Dia/Mês/Ano têm de ser inteiros!");
+            return null;
+        }
+        LocalDate res = LocalDate.of(yearInt,monthInt,dayInt);
+        return res;
     }
 
 }

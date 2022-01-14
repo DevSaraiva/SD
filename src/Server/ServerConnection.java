@@ -19,7 +19,6 @@ public class ServerConnection implements Runnable {
         this.info = info;
         this.username = null;
         this.loggedIn = false;
-        this.online = true;
     }
 
     @Override
@@ -48,6 +47,10 @@ public class ServerConnection implements Runnable {
                         case INSERT_FLY:
                             insertFLY(frame);
                             break;
+
+                        case CLOSE_SERVICE:
+                            break;
+
                         default:
                             break;
                     }
@@ -77,6 +80,7 @@ public class ServerConnection implements Runnable {
         if(created){
             res = "REGISTADO";
             this.username = username;
+            this.loggedIn = true;
         }else {
             res = "USER-EXISTS";
         }
@@ -104,6 +108,7 @@ public class ServerConnection implements Runnable {
 
         if(logged == 1 || logged == 2){
             this.username = username;
+            this.loggedIn = true;
         }
 
         tC.send(new Frame(Tag.LOGIN,res.getBytes()));

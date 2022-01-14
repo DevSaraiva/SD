@@ -15,6 +15,8 @@ import java.util.*;
 
 import java.time.LocalTime;
 
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 public class Info {
@@ -22,14 +24,69 @@ public class Info {
     private Map<String, List<Flight>> flightsMap;   //key is the origin; value is the list of the flights with departure from that origin
     private Map<LocalDate, Boolean> closedScheduleMap;
     private Map<String, Account> accountsMap;
+    private boolean online;
+    private int idCounterReservations;
+    private int usersLogged;
+    private ReentrantReadWriteLock l;
+    private ReentrantReadWriteLock.ReadLock rl;
+    private ReentrantReadWriteLock.WriteLock wl;
 
-    private static int idCounter = 0;
+
+
+    public void closeServer(){
+
+        wl.lock();
+
+        try{
+            this.online = false;
+        }
+
+        finally {
+            wl.unlock();
+        }
+    }
+
+    public void increaseUsersLogged() {
+        this.wl.lock();
+
+        try{
+            this.usersLogged++;
+        }
+
+        finally {
+            this.wl.unlock();
+        }
+    }
+
+    public void decreaseUsersLogged() {
+        this.wl.lock();
+
+        try{
+            this.usersLogged--;
+        }
+
+        finally {
+            this.wl.unlock();
+        }
+    }
+
+
+    public int getUsersLogged() {
+        return usersLogged;
+    }
 
     public Info() {
 
         this.flightsMap = new HashMap<>();
         this.accountsMap = new HashMap<>();
         this.closedScheduleMap = new HashMap<>();
+        this.idCounterReservations = 0;
+        this.online = true;
+        this.usersLogged = 0;
+
+        this.l = new ReentrantReadWriteLock();
+        this.wl = l.writeLock();
+        this.rl = l.readLock();
 
         // MÉTODOS PARA A PERSISTENCIA DE DADOS
         try {
