@@ -85,7 +85,6 @@ public class ServerConnection implements Runnable {
         String password = new String(frame.data);
 
         int logged = info.verifyLogin(username,password);
-
         String res = null;
 
         switch (logged){
@@ -97,7 +96,7 @@ public class ServerConnection implements Runnable {
                 res = "USER";
                 break;
 
-            case 3 :
+            case 2 :
                 res = "ADMIN";
                 break;
 

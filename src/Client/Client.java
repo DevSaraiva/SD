@@ -138,6 +138,16 @@ public class Client {
             switch (option) {
 
                 case 1:
+                    System.out.println("\nInsira a Origem:\n");
+                    String origin = stdin.readLine();
+                    System.out.println("Origem : " + origin);
+                    System.out.println("\nInsira a Destino:\n");
+                    String destination = stdin.readLine();
+                    System.out.println("Destino : " + destination);
+                    System.out.println("\nInsira a capacidade: \n");
+                    int capacity = readOptionInt(500,stdin);
+                    System.out.println("capacidade : " + capacity);
+                    //fs = new Frame(Tag.INSERT_FLY,"")
                     // admin-> Inserir informação sobre voos , introduzindo Origem, Destino e
                     // Capacidade
                     break;
