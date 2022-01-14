@@ -8,8 +8,13 @@ import Server.TaggedConnection;
 import jdk.swing.interop.SwingInterOpUtils;
 
 import java.io.*;
+
 import java.nio.charset.StandardCharsets;
+import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class Client {
 
@@ -133,25 +138,24 @@ public class Client {
                     System.out.println("\nInsira o valor correspondente à operação desejada: \n");
                     option = readOptionInt(3, stdin);
                 }
-                if (option != 0) { // se for o sair nao soma 2
-                    option = option + 3; // 1 2 3 passa a ser opcoes 3 4 5
+                if (option != 0) { // se for o sair nao soma 3
+                    option = option + 3; // 1 2 3 passa a ser opcoes 4 5 6
                 }
             }
 
 
 
             Frame fs = null;
-
             String sendMessage;
             String receiveMessage;
 
+
+            String send = null;
             switch (option) {
 
                 case 1:
-
-                    // admin-> Inserir informação sobre voos , introduzindo Origem, Destino Capacidade
-
-                    System.out.println("\nInsira a Origem:\n");
+                    // admin-> Inserir informação sobre voos , introduzindo Origem, Destino e Capacidade
+                    System.out.println("\nInsira a Origem:");
                     String origin = stdin.readLine();
                     System.out.println("\nInsira a Destino:");
                     String destination = stdin.readLine();
@@ -175,10 +179,19 @@ public class Client {
                     }
 
 
+                    break;
+
                 case 2:
+                    // admin-> Encerramento de um dia, impedindo novas reservas e cancelamentos de reservas para esse mesmo dia
+                    // FIXME posteriormente receber boolean para o caso se o dia ja estava encerrado ou nao ???
+
                     LocalDate date = readDate(stdin);
+
                     // admin-> Encerramento de um dia, impedindo novas reservas e cancelamentos de
                     // reservas para esse mesmo dia
+                    send = date.getDayOfMonth() + "-" + date.getMonthValue() + "-" + date.getYear();
+                    fs = new Frame(Tag.CLOSE_DAY,send.getBytes()); // FIXME FALTA FAZER NO SERVIDOR
+                    dm.send(fs);
                     break;
 
                 case 3:
@@ -194,15 +207,41 @@ public class Client {
 
                 case 4:
                     // user-> Reservar viagem
+                    // FIXME acho que devia receber se o percurso é possivel ou nao e recber tambem no caso de nao haver voos disponiveis para as datas que ele deu
+
+                    System.out.println("\nIntroduza o percurso completo com todas as escalas no formato Origem-Escala-...-Destino");
+                    String route = stdin.readLine();
+                    System.out.println("\nIntroduza agora o intervalo de datas que pretende fazer a viagem começando por indicar a data de inicio:");
+                    LocalDate startDate = readDate(stdin);
+                    System.out.println("\nIntroduza agora a data final do intervalo:");
+                    LocalDate endDate = readDate(stdin);
+                    String limitInfDate = startDate.getDayOfMonth() + "-" + startDate.getMonthValue() + "-" + startDate.getYear();
+                    String limitSupDate = endDate.getDayOfMonth() + "-" + endDate.getMonthValue() + "-" + endDate.getYear();
+                    send = route + "/" +  limitInfDate + "/" + limitSupDate;
+                    fs = new Frame(Tag.BOOK_TRIP,send.getBytes()); // FIXME FALTA FAZER NO SERVIDOR
+                    dm.send(fs);
+
                     break;
 
                 case 5:
                     // user-> Cancelar reserva de uma viagem, indicando o código de reserva
+                    // FIXME TALVEZ RECEBER SE A RESERVA FOI EFECTUADO COM SUCESSO OU SE JA SE ENCONTRAVA CANCELADA (E TAMBEM CASO DO ID NAO EXISTIR)
+                    //
+                    System.out.println("Indique o id da reserva que pretende cancelar:");
+                    int id = readOptionInt(1000,stdin);
+                    send = Integer.toString(id);
+                    fs = new Frame(Tag.CANCEL_FLIGHT,send.getBytes()); // FIXME FALTA FAZER NO SERVIDOR
+                    dm.send(fs);
+
                     break;
 
                 case 6:
-                    // user -> Oter lista de todas os voos existentes (lista de pares origem →
-                    // destino)
+                    // user -> Oter lista de todas os voos existentes (lista de pares origem → destino)
+
+                    // aqui nao manda nada ver se null funciona depois
+                    fs = new Frame(Tag.GET_FLIGHTS_LIST,null); // FIXME FALTA FAZER NO SERVIDOR
+                    dm.send(fs);
+
                     break;
 
 
@@ -245,7 +284,7 @@ public class Client {
     public static LocalDate readDate(BufferedReader stdin) {
         LocalDate date = null;
         while (date == null) {
-            System.out.println("Insira o dia que pretende encerrar no formato D/M/Y");
+            System.out.println("\nInsira o dia que pretende encerrar no formato D/M/A");
 
             String data = null;
             try {
@@ -255,8 +294,12 @@ public class Client {
             }
 
             String[] date_parse = data.split("/");
+            if (date_parse.length == 3) {
+                date = verifyDate(date_parse[0],date_parse[1],date_parse[2]);
+            } else {
+                System.out.println("Data inserida está no formato inválido. Certifique-se que introduz a data no formato Dia/Mês/Ano.");
+            }
 
-            date = verifyDate(date_parse[0],date_parse[1],date_parse[2]);
         }
         return date;
     }
@@ -271,7 +314,14 @@ public class Client {
             System.out.println("Introduziu alguns dos valores Dia/Mês/Ano têm de ser inteiros!");
             return null;
         }
-        LocalDate res = LocalDate.of(yearInt,monthInt,dayInt);
+
+        LocalDate res = null;
+        try {
+            res = LocalDate.of(yearInt,monthInt,dayInt);
+        } catch (DateTimeException e) {
+            System.out.println("A Data que inseriu não é válida.");
+        }
+
         return res;
     }
 

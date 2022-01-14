@@ -279,7 +279,7 @@ public class Info {
 
 
     // Encerramento de um dia
-    // posteriormente devolver boolean para o caso se o dia ja estava encerrado ou nao ???
+    // FIXME posteriormente devolver boolean para o caso se o dia ja estava encerrado ou nao ???
     public void closeDay(LocalDate date) {
        this.closedScheduleMap.put(date,true);
     }
@@ -368,8 +368,8 @@ public class Info {
             f.setOccupationDate(date,newOcupation);
         }
 
-        String idReservation = Integer.toString(idCounter);
-        idCounter++;
+        String idReservation = Integer.toString(idCounterReservations);
+        idCounterReservations++;
         Reservation res = new Reservation(idReservation,date,route);
         Account acc = this.accountsMap.get(acountId);
         acc.addReservation(idReservation,res);
