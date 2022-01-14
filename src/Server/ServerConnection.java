@@ -2,7 +2,11 @@ package Server;
 
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
+import Exceptions.ReservationAlreadyCanceledException;
+import Exceptions.ReservationNotExistException;
 import Model.*;
 
 import Model.Frame.Tag;
@@ -38,18 +42,38 @@ public class ServerConnection implements Runnable {
                         case SIGNUP:
                             signup(frame);
                             break;
+
                         case LOGIN:
                             login(frame);
                             break;
+
                         case LOGOUT:
                             logout();
                             break;
+
+                            //  INSERT_FLY, CLOSE_DAY, CLOSE_SERVICE, BOOK_TRIP, CANCEL_FLIGHT, GET_FLIGHTS_LIST;
+
                         case INSERT_FLY:
                             insertFLY(frame);
                             break;
 
+                        case CLOSE_DAY:
+                            break;
+
                         case CLOSE_SERVICE:
                             break;
+
+                        case BOOK_TRIP:
+                            break;
+
+                        case CANCEL_FLIGHT:
+                            cancelFlight(frame);
+                            break;
+
+                        case GET_FLIGHTS_LIST:
+                            getFLYlist();
+                            break;
+
 
                         default:
                             break;
@@ -141,6 +165,33 @@ public class ServerConnection implements Runnable {
         }
         tC.send(new Frame(Tag.INSERT_FLY,res.getBytes()));
 
+    }
+
+    private void cancelFlight(Frame frame) throws IOException {
+        String idReservation = new String(frame.data);
+
+
+        String send = null;
+        try {
+            info.cancelFlight(username,idReservation);
+            send = "CANCELED";
+        } catch (ReservationNotExistException e) {
+            send = "NOT_EXIST";
+        } catch (ReservationAlreadyCanceledException e) {
+            send = "ALREADY_EXIST";
+        }
+        tC.send(new Frame(Tag.CANCEL_FLIGHT,send.getBytes()));
+    }
+
+    private void getFLYlist() throws IOException {
+        List<Map.Entry<String,String>> flights = info.getFlightsList();
+        StringBuilder sb = new StringBuilder(); // controi do tipo origem1-Destino1/origem2-Destino2/
+        for (Map.Entry<String,String> entry : flights) {
+            sb.append(entry.getKey()).append("-").append(entry.getValue()).append("/");
+        }
+        sb.deleteCharAt(sb.length()-1); // apaga a ultima barra a mais
+
+        tC.send(new Frame(Tag.GET_FLIGHTS_LIST,sb.toString().getBytes()));
     }
 
 }
