@@ -8,7 +8,7 @@ import java.util.Scanner;
 public class Tester {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-        Info i = new Info();
+        Info i = new Info(null);
         if (i.createAccount("admin", "admin", true)) {          //para criar um user sem beneficios de admin, basta por isto a false!!
             System.out.println("Admin criado com sucesso!");
         }

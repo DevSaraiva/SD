@@ -52,8 +52,6 @@ public class ServerConnection implements Runnable {
                             logout();
                             break;
 
-                            //  INSERT_FLY, CLOSE_DAY, CLOSE_SERVICE, BOOK_TRIP, CANCEL_FLIGHT, GET_FLIGHTS_LIST;
-
                         case INSERT_FLY:
                             insertFlight(frame);
                             break;
@@ -148,7 +146,17 @@ public class ServerConnection implements Runnable {
         this.tC.close();
         this.info.decreaseUsersLogged();
         this.online = false;
-        System.out.println(this.info.getUsersLogged());
+        Server s = info.getS();
+
+        s.l.lock();
+        s.l.lock();
+        try{
+            this.info.wakeup();
+
+        }
+        finally {
+            s.l.unlock();
+        }
     }
 
 

@@ -35,6 +35,59 @@ public class Info {
 
 
 
+
+    public Info(Server server) {
+
+        this.flightsMap = new HashMap<>();
+        this.accountsMap = new HashMap<>();
+        this.closedScheduleMap = new HashMap<>();
+        this.idCounterReservations = 0;
+        this.online = true;
+        this.usersLogged = 0;
+        this.s = server;
+        this.l = new ReentrantReadWriteLock();
+        this.wl = l.writeLock();
+        this.rl = l.readLock();
+
+        // MÉTODOS PARA A PERSISTENCIA DE DADOS
+        try {
+            File accounts = new File("saves/accounts.txt");
+            if (accounts.exists()) {
+                loadAccounts("saves");
+            } else {
+                this.accountsMap = new HashMap<>();
+            }
+
+            File flights = new File("saves/flights.txt");
+            if (flights.exists()) {
+                loadFlights("saves");
+            } else {
+                this.flightsMap = new HashMap<>();
+            }
+
+            File closedSchedule = new File("saves/closedSchedules.txt");
+            if (closedSchedule.exists()) {
+                loadClosedSchedules("saves");
+            } else {
+                this.accountsMap = new HashMap<>();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+
+    public void wakeup(){
+        this.s.wakeup();
+    }
+
+
+    public Server getS() {
+        return s;
+    }
+
     public void closeServer(){
 
         wl.lock();
@@ -80,48 +133,6 @@ public class Info {
     public boolean isOnline(){
         return this.online;
     }
-
-    public Info() {
-
-        this.flightsMap = new HashMap<>();
-        this.accountsMap = new HashMap<>();
-        this.closedScheduleMap = new HashMap<>();
-        this.idCounterReservations = 0;
-        this.online = true;
-        this.usersLogged = 0;
-
-        this.l = new ReentrantReadWriteLock();
-        this.wl = l.writeLock();
-        this.rl = l.readLock();
-
-        // MÉTODOS PARA A PERSISTENCIA DE DADOS
-        try {
-            File accounts = new File("saves/accounts.txt");
-            if (accounts.exists()) {
-                loadAccounts("saves");
-            } else {
-                this.accountsMap = new HashMap<>();
-            }
-
-            File flights = new File("saves/flights.txt");
-            if (flights.exists()) {
-                loadFlights("saves");
-            } else {
-                this.flightsMap = new HashMap<>();
-            }
-
-            File closedSchedule = new File("saves/closedSchedules.txt");
-            if (closedSchedule.exists()) {
-                loadClosedSchedules("saves");
-            } else {
-                this.accountsMap = new HashMap<>();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
 
 
     public void saveData(String pasta) {

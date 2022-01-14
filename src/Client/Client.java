@@ -210,9 +210,7 @@ public class Client {
 
                     receiveMessage = new String(dm.receive(Tag.CLOSE_SERVICE));
 
-                    if(receiveMessage.equals("CLOSING"))
-
-
+                    if(receiveMessage.equals("CLOSING")) System.out.println("Servidor irá ser fechado assim que possivel");
 
 
                     break;

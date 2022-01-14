@@ -17,7 +17,7 @@ public class Server {
 
 
     public void wakeup() {
-        this.c.signal();
+        this.c.signalAll();
     }
 
 
@@ -27,12 +27,19 @@ public class Server {
         Server s = new Server();
 
         ServerSocket serverSocket = new ServerSocket(8888);
-        Info info = new Info();
+        Info info = new Info(s);
+
 
         while (info.isOnline()) {
 
-            Socket socket = serverSocket.accept();
-            new Thread(new ServerConnection(new TaggedConnection(socket), info)).start();
+            try{
+                serverSocket.setSoTimeout(10000);
+                Socket socket = serverSocket.accept();
+                new Thread(new ServerConnection(new TaggedConnection(socket), info)).start();
+            }catch (Exception ignored){
+
+            }
+
         }
 
      s.l.lock();
