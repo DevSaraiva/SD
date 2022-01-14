@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class Info {
 
     private Map<String, List<Flight>> flightsMap;   //key is the origin; value is the list of the flights with departure from that origin
-    private Map<LocalDate, Boolean> closedScheduleMap;
+    private List<LocalDate> closedScheduleList; // list with closed days
     private Map<String, Account> accountsMap;
     private boolean online;
     private int idCounterReservations;
@@ -38,7 +38,7 @@ public class Info {
 
         this.flightsMap = new HashMap<>();
         this.accountsMap = new HashMap<>();
-        this.closedScheduleMap = new HashMap<>();
+        this.closedScheduleList = new ArrayList<>();
         this.idCounterReservations = 0;
         this.online = true;
         this.usersLogged = 0;
@@ -201,7 +201,7 @@ public class Info {
         File toRead = new File(folder + "/closedSchedules.txt");
         FileInputStream fis = new FileInputStream(toRead);
         ObjectInputStream ois = new ObjectInputStream(fis);
-        this.closedScheduleMap = (HashMap<LocalDate, Boolean>) ois.readObject();
+        this.closedScheduleList = (List<LocalDate>) ois.readObject();
         ois.close();
         fis.close();
     }
@@ -212,7 +212,7 @@ public class Info {
             file.createNewFile();
         FileOutputStream fos = new FileOutputStream(file);
         ObjectOutputStream oos = new ObjectOutputStream(fos);
-        oos.writeObject(this.closedScheduleMap);
+        oos.writeObject(this.closedScheduleList);
         oos.flush();
         oos.close();
         fos.close();
@@ -320,15 +320,15 @@ public class Info {
         wl.lock();
 
         try {
-
             if (verifyCloseDay(date)) {
                 return false;
             } else {
-                this.closedScheduleMap.put(date, true);
+                this.closedScheduleList.add(date);
                 return true;
             }
         } finally {
             wl.unlock();
+
         }
 
     }
@@ -386,12 +386,11 @@ public class Info {
 
     public boolean verifyCloseDay(LocalDate date) {
 
-
         rl.lock();
 
         try {
 
-            return this.closedScheduleMap.get(date);
+            return this.closedScheduleList.contains(date);
 
         } finally {
             rl.unlock();
