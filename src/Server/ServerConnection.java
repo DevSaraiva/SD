@@ -109,6 +109,10 @@ public class ServerConnection implements Runnable {
             res = "REGISTADO";
             this.username = username;
             this.loggedIn = true;
+
+            System.out.println("Utilizador " + username + "registado");
+
+
         }else {
             res = "USER-EXISTS";
         }
@@ -138,11 +142,11 @@ public class ServerConnection implements Runnable {
             this.username = username;
             this.loggedIn = true;
             this.info.increaseUsersLogged();
+            System.out.println("User " + username + " logged");
         }
 
         tC.send(new Frame(Tag.LOGIN,res.getBytes()));
 
-        System.out.println(info.getUsersLogged());
     }
 
 
@@ -150,17 +154,8 @@ public class ServerConnection implements Runnable {
         this.tC.close();
         this.info.decreaseUsersLogged();
         this.online = false;
-        Server s = info.getS();
-
-        s.l.lock();
-        s.l.lock();
-        try{
-            this.info.wakeup();
-
-        }
-        finally {
-            s.l.unlock();
-        }
+        this.info.wakeup();
+        System.out.println("User " + username + " logout");
     }
 
 
@@ -178,8 +173,11 @@ public class ServerConnection implements Runnable {
         String res = null;
         if(inserted){
             res = "INSERTED";
+            System.out.println("Voo inserido ->" + origin + " " + destination + " " + capcity );
         }else{
             res = "UPDATED";
+
+            System.out.println("Voo atualizado em termos de capacidade ->" + origin + " " + destination + " " + capcity );
         }
         tC.send(new Frame(Tag.INSERT_FLY,res.getBytes()));
 
@@ -200,6 +198,8 @@ public class ServerConnection implements Runnable {
 
         tC.send(new Frame(Tag.CLOSE_DAY,res.getBytes()));
 
+        System.out.println("Dia " + dateDMA[0] + "/" + dateDMA[1] + "/" + dateDMA[2] + "fechado");
+
     }
 
 
@@ -208,6 +208,8 @@ public class ServerConnection implements Runnable {
         this.info.closeServer();
 
         String res = "CLOSING";
+
+        System.out.println("Server irá fechar em momentos");
 
         tC.send(new Frame(Tag.CLOSE_SERVICE,res.getBytes()));
     }
@@ -229,6 +231,11 @@ public class ServerConnection implements Runnable {
         String codReserve = info.bookTrip(username,route,startDate,endDate);
         System.out.println(codReserve);
 
+
+        System.out.println("Viagem de " + startDate.toString() + "até " + endDate.toString() + "reservada");
+        System.out.println("Pelas cidades : " + route);
+
+
         tC.send(new Frame(Tag.BOOK_TRIP,codReserve.getBytes()));
     }
 
@@ -241,10 +248,14 @@ public class ServerConnection implements Runnable {
         try {
             info.cancelFlight(username,idReservation);
             send = "CANCELED";
+
+            System.out.println("Reserva " + idReservation + " cancelado");
         } catch (ReservationNotExistException e) {
             send = "NOT_EXIST";
+            System.out.println("Reserva " + idReservation + " não existe");
         } catch (ReservationAlreadyCanceledException e) {
             send = "ALREADY_EXIST";
+            System.out.println("Reserva " + idReservation + " já estava cancelado");
         }
         tC.send(new Frame(Tag.CANCEL_FLIGHT,send.getBytes()));
     }
@@ -263,6 +274,8 @@ public class ServerConnection implements Runnable {
             send = sb.toString();
         }
         tC.send(new Frame(Tag.GET_FLIGHTS_LIST,send.getBytes()));
+
+        System.out.println("Lista de voos possiveis enviada");
 
     }
 
