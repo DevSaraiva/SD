@@ -7,7 +7,10 @@ import Model.Frame.Tag;
 import Server.TaggedConnection;
 
 import java.io.*;
+import java.time.DateTimeException;
 import java.time.LocalDate;
+import org.apache.commons.lang3.ArrayUtils;
+
 
 public class Client {
 
@@ -158,7 +161,8 @@ public class Client {
 
                 case 2:
                     LocalDate date = readDate(stdin);
-                    fs = new Frame(Tag.CLOSE_DAY,"");
+                    String send = date.getDayOfMonth() + "/" + date.getMonthValue() + "/" + date.getYear();
+                    fs = new Frame(Tag.CLOSE_DAY,send.getBytes()); // FIXME FALTA FAZER NO SERVIDOR
                     // admin-> Encerramento de um dia, impedindo novas reservas e cancelamentos de
                     // reservas para esse mesmo dia
                     break;
@@ -220,7 +224,7 @@ public class Client {
     public static LocalDate readDate(BufferedReader stdin) {
         LocalDate date = null;
         while (date == null) {
-            System.out.println("Insira o dia que pretende encerrar no formato D/M/Y");
+            System.out.println("\nInsira o dia que pretende encerrar no formato D/M/A");
 
             String data = null;
             try {
@@ -230,8 +234,12 @@ public class Client {
             }
 
             String[] date_parse = data.split("/");
+            if (date_parse.length == 3) {
+                date = verifyDate(date_parse[0],date_parse[1],date_parse[2]);
+            } else {
+                System.out.println("Data inserida está no formato inválido. Certifique-se que introduz a data no formato Dia/Mês/Ano.");
+            }
 
-            date = verifyDate(date_parse[0],date_parse[1],date_parse[2]);
         }
         return date;
     }
@@ -246,8 +254,14 @@ public class Client {
             System.out.println("Introduziu alguns dos valores Dia/Mês/Ano têm de ser inteiros!");
             return null;
         }
-        LocalDate res = LocalDate.of(yearInt,monthInt,dayInt);
-        return res
+        LocalDate res = null;
+        try {
+            res = LocalDate.of(yearInt,monthInt,dayInt);
+        } catch (DateTimeException e) {
+            System.out.println("A Data que inseriu não é válida.");
+        }
+
+        return res;
     }
 
 }
