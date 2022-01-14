@@ -16,10 +16,18 @@ import java.util.List;
 public class Client {
 
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args)  {
 
-        Socket s = new Socket("localhost", 8888);
-        Demultiplexer dm = new Demultiplexer(new TaggedConnection(s));
+        Socket s = null;
+        Demultiplexer dm = null;
+        try {
+            s = new Socket("localhost", 8888);
+            dm = new Demultiplexer(new TaggedConnection(s));
+        } catch (IOException e) {
+            System.out.println("O Servidor está indisponivel!");
+        }
+
+
 
         boolean admin = false;
 
