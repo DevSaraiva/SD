@@ -2,6 +2,7 @@ package Server;
 
 
 import java.io.IOException;
+import java.net.Socket;
 
 import Model.*;
 
@@ -19,12 +20,12 @@ public class ServerConnection implements Runnable {
         this.info = info;
         this.username = null;
         this.loggedIn = false;
+        this.online = true;
     }
 
     @Override
 
     public void run() {
-
         while (this.online) {
             Frame frame;
 
@@ -45,10 +46,11 @@ public class ServerConnection implements Runnable {
                             logout();
                             break;
                         case INSERT_FLY:
-                            insertFLY(frame);
+                            insertFlight(frame);
                             break;
 
                         case CLOSE_SERVICE:
+                            closeServer();
                             break;
 
                         default:
@@ -109,20 +111,24 @@ public class ServerConnection implements Runnable {
         if(logged == 1 || logged == 2){
             this.username = username;
             this.loggedIn = true;
+            this.info.increaseUsersLogged();
         }
 
         tC.send(new Frame(Tag.LOGIN,res.getBytes()));
 
+        System.out.println(info.getUsersLogged());
     }
 
 
     private void logout() throws IOException {
         this.tC.close();
+        this.info.decreaseUsersLogged();
         this.online = false;
+        System.out.println(this.info.getUsersLogged());
     }
 
 
-    private void  insertFLY(Frame frame) throws IOException {
+    private void  insertFlight(Frame frame) throws IOException {
 
         String[] received = new String(frame.data).split("/");
 
@@ -140,6 +146,16 @@ public class ServerConnection implements Runnable {
             res = "UPDATED";
         }
         tC.send(new Frame(Tag.INSERT_FLY,res.getBytes()));
+
+    }
+
+    public void closeServer() throws IOException {
+
+        this.info.closeServer();
+
+        String res = "CLOSING";
+
+        tC.send(new Frame(Tag.CLOSE_SERVICE,res.getBytes()));
 
     }
 

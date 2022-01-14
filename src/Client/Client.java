@@ -200,6 +200,10 @@ public class Client {
                     dm.send(new Frame(Tag.CLOSE_SERVICE,new byte[0]));
 
 
+                    receiveMessage = new String(dm.receive(Tag.CLOSE_SERVICE));
+
+                    if(receiveMessage.equals("CLOSING"))
+
 
 
 

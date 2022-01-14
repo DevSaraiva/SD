@@ -3,6 +3,7 @@ package Model;
 import Exceptions.OriginNotFoundOnMapException;
 import Exceptions.ReservationAlreadyCanceledException;
 import Exceptions.ReservationNotExistException;
+import Server.Server;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,6 +28,7 @@ public class Info {
     private boolean online;
     private int idCounterReservations;
     private int usersLogged;
+    private Server s;
     private ReentrantReadWriteLock l;
     private ReentrantReadWriteLock.ReadLock rl;
     private ReentrantReadWriteLock.WriteLock wl;
@@ -73,6 +75,10 @@ public class Info {
 
     public int getUsersLogged() {
         return usersLogged;
+    }
+
+    public boolean isOnline(){
+        return this.online;
     }
 
     public Info() {
