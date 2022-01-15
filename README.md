@@ -20,6 +20,10 @@ Password: 12345
 
 admin - > admin
 bernardo -> 12345
+rui -> 12345
+ze-joao -> 12345
+moises -> 12345
+
 
 
 ## Voos:  
