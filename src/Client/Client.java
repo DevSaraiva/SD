@@ -27,7 +27,7 @@ public class Client {
             s = new Socket("localhost", 8888);
             dm = new Demultiplexer(new TaggedConnection(s));
         } catch (IOException e) {
-            System.out.println("O Servidor está indisponivel!");
+            System.out.println(Colors.ANSI_RED + "O Servidor está indisponivel!" + Colors.ANSI_RESET);
         }
 
 
@@ -42,7 +42,7 @@ public class Client {
 
         while (!authenticated) {
 
-            System.out.print("\n***Reserva de Voos***\n"
+            System.out.print(Colors.ANSI_BLUE + "\n***Reserva de Voos***\n" + Colors.ANSI_RESET
                     + "\n"
                     + "1) Efectuar Registo como Utilizador.\n"
                     + "2) Efectuar Login como Utilizador/Admin.\n"
@@ -51,7 +51,7 @@ public class Client {
 
             int optionAuthenticated = -1;
             while (optionAuthenticated == -1) { // enquanto a opcao introduzida for invalida
-                System.out.println("\nInsira o valor correspondente à operação desejada: ");
+                System.out.println(Colors.ANSI_WHITE + "\nInsira o valor correspondente à operação desejada: " + Colors.ANSI_RESET);
                 optionAuthenticated = readOptionInt(2, stdin);
             }
             String username = null;
@@ -64,9 +64,9 @@ public class Client {
             switch (optionAuthenticated) {
                 case 1:
                     // caso de SIGNUP Utilizador
-                    System.out.print("\nIntroduza o username\n");
+                    System.out.print(Colors.ANSI_YELLOW + "\nIntroduza o username\n" + Colors.ANSI_RESET);
                     username = stdin.readLine();
-                    System.out.print("\nIntroduza o password\n");
+                    System.out.print(Colors.ANSI_YELLOW + "\nIntroduza o password\n" + Colors.ANSI_RESET);
                     password = stdin.readLine();
 
 
@@ -77,19 +77,19 @@ public class Client {
                     res = new String(dm.receive(Tag.SIGNUP));
 
                     if(res.equals("REGISTADO")){
-                        System.out.println("Conta Criada com sucesso.\n");
+                        System.out.println(Colors.ANSI_GREEN + "Conta Criada com sucesso.\n" + Colors.ANSI_RESET);
                         authenticated = true;
                     }else{
-                        System.out.println("O username já existe.\n");
+                        System.out.println(Colors.ANSI_RED + "O username já existe.\n" + Colors.ANSI_RESET);
                     }
 
                     break;
 
                 case 2:
                     // caso de login Utilizador
-                    System.out.print("\nIntroduza o username\n");
+                    System.out.print(Colors.ANSI_YELLOW + "\nIntroduza o username\n" + Colors.ANSI_RESET);
                     username = stdin.readLine();
-                    System.out.print("\nIntroduza o password\n");
+                    System.out.print(Colors.ANSI_YELLOW + "\nIntroduza o password\n" + Colors.ANSI_RESET);
                     password = stdin.readLine();
 
                     send = username + "/" + password;
@@ -107,7 +107,7 @@ public class Client {
                             admin = true;
                         }else{
                             if (res.equals("NOTFOUND")) System.out.println("Username não existe");
-                            else System.out.println("Palavra-Passe errada");
+                            else System.out.println(Colors.ANSI_RED + "Palavra-Passe errada" + Colors.ANSI_RESET);
                         }
                     }
 
@@ -118,7 +118,7 @@ public class Client {
 
         boolean exit = false;
         while (!exit) {
-            System.out.print("\n***Reserva de Voos***\n\n");
+            System.out.print(Colors.ANSI_BLUE + "\n***Reserva de Voos***\n\n" + Colors.ANSI_RESET);
             int option = -1;
             if (admin) {
                 System.out.println("Insira o valor correspondente à operação desejada: \n"
@@ -129,7 +129,7 @@ public class Client {
                         + "0) Sair.\n");
 
                 while (option == -1) { // enquanto a opcao introduzida for invalida
-                    System.out.println("\nInsira o valor correspondente à operação desejada: \n");
+                    System.out.println(Colors.ANSI_YELLOW + "\nInsira o valor correspondente à operação desejada: \n" + Colors.ANSI_RESET);
                     option = readOptionInt(3, stdin);
                 }
 
@@ -144,7 +144,7 @@ public class Client {
                         + "0) Sair.\n");
 
                 while (option == -1) { // enquanto a opcao introduzida for invalida
-                    System.out.println("\nInsira o valor correspondente à operação desejada: \n");
+                    System.out.println(Colors.ANSI_YELLOW + "\nInsira o valor correspondente à operação desejada: \n" + Colors.ANSI_RESET);
                     option = readOptionInt(4, stdin);
                 }
                 if (option != 0) { // se for o sair nao soma 3
@@ -164,13 +164,13 @@ public class Client {
 
                 case 1:
                     // admin-> Inserir informação sobre voos , introduzindo Origem, Destino e Capacidade
-                    System.out.println("\nInsira a Origem:");
+                    System.out.println(Colors.ANSI_YELLOW + "\nInsira a Origem:" + Colors.ANSI_RESET);
                     String origin = stdin.readLine();
-                    System.out.println("\nInsira a Destino:");
+                    System.out.println(Colors.ANSI_YELLOW + "\nInsira a Destino:" + Colors.ANSI_RESET);
                     String destination = stdin.readLine();
                     int capacity = -1;
                     while (capacity == -1) { // enquanto a opcao introduzida for invalida
-                        System.out.println("\nInsira o valor correspondente à capacidade: ");
+                        System.out.println(Colors.ANSI_YELLOW + "\nInsira o valor correspondente à capacidade: " + Colors.ANSI_RESET);
                         capacity = readOptionInt(1000,stdin);
                     }
                     sendMessage = origin + "/" + destination + "/" + capacity;
@@ -180,9 +180,9 @@ public class Client {
                     receiveMessage = new String(dm.receive(Tag.INSERT_FLY));
 
                     if(receiveMessage.equals("INSERTED")){
-                        System.out.println("Voo adicionado com sucesso");
+                        System.out.println(Colors.ANSI_GREEN + "Voo adicionado com sucesso" + Colors.ANSI_RESET);
                     }else{
-                        System.out.println("Capacidade do voo atualizada");
+                        System.out.println(Colors.ANSI_GREEN + "Capacidade do voo atualizada" + Colors.ANSI_RESET);
                     }
 
 
@@ -200,9 +200,9 @@ public class Client {
 
                     receiveMessage = new String(dm.receive(Tag.CLOSE_DAY));
                     if (receiveMessage.equals("ALREADY_CLOSED")) {
-                        System.out.println("O dia que indicou já se encontrava fechado.");
+                        System.out.println(Colors.ANSI_RED + "O dia que indicou já se encontrava fechado." + Colors.ANSI_RESET);
                     }else {
-                        System.out.println("O dia " + date.toString() + " foi encerrado.");
+                        System.out.println(Colors.ANSI_GREEN + "O dia " + date.toString() + " foi encerrado." + Colors.ANSI_RESET);
                     }
                     break;
 
@@ -214,22 +214,22 @@ public class Client {
 
                     receiveMessage = new String(dm.receive(Tag.CLOSE_SERVICE));
 
-                    if(receiveMessage.equals("CLOSING")) System.out.println("Servidor irá ser fechado assim que possivel");
+                    if(receiveMessage.equals("CLOSING")) System.out.println(Colors.ANSI_GREEN + "Servidor irá ser fechado assim que possivel" + Colors.ANSI_RESET);
 
 
                     break;
 
                 case 4:
                     // user-> Reservar viagem
-                    System.out.println("\nIntroduza o percurso completo com todas as escalas no formato Origem-Escala-...-Destino");
+                    System.out.println(Colors.ANSI_YELLOW + "\nIntroduza o percurso completo com todas as escalas no formato Origem-Escala-...-Destino" + Colors.ANSI_RESET);
                     String route = stdin.readLine();
                     if (route.split("-").length <= 1) {
-                        System.out.println("Formato inválido.");
+                        System.out.println(Colors.ANSI_RED + "Formato inválido." + Colors.ANSI_RESET);
                         break;
                     }
-                    System.out.println("\nIntroduza agora o intervalo de datas que pretende fazer a viagem começando por indicar a data de inicio no formato D/M/A:");
+                    System.out.println(Colors.ANSI_YELLOW + "\nIntroduza agora o intervalo de datas que pretende fazer a viagem começando por indicar a data de inicio no formato D/M/A:" + Colors.ANSI_RESET);
                     LocalDate startDate = readDate(stdin);
-                    System.out.println("\nIntroduza agora a data final do intervalo no formato D/M/A:");
+                    System.out.println(Colors.ANSI_YELLOW + "\nIntroduza agora a data final do intervalo no formato D/M/A:" + Colors.ANSI_RESET);
                     LocalDate endDate = readDate(stdin);
                     String limitInfDate = startDate.getDayOfMonth() + "-" + startDate.getMonthValue() + "-" + startDate.getYear();
                     String limitSupDate = endDate.getDayOfMonth() + "-" + endDate.getMonthValue() + "-" + endDate.getYear();
@@ -249,17 +249,18 @@ public class Client {
                                 e.printStackTrace();
                             }
 
+                        if (receive.equals("ROUTE_NOT_POSSIBLE")) {
+                            System.out.println(Colors.ANSI_RED + "O percurso que introduziu não é possivel." + Colors.ANSI_RESET);
+                        }
+                        else if(receive.equals("NO_POSSIBLE")) {
+                            System.out.println(Colors.ANSI_RED + "Não é possível efectuar a viagem no intervalo de datas indicado." + Colors.ANSI_RESET);
+                        } else {
+                            String[] msg = receive.split("/");
+                            System.out.println(Colors.ANSI_GREEN + "A viagem ficou reservada para dia " + msg[1] + " . O código da reserva é " + msg[0] + "." + Colors.ANSI_RESET);
+                        }
 
-                            if (receive.equals("ROUTE_NOT_POSSIBLE")) {
-                                System.out.println("O percurso que introduziu não é possivel.");
-                            }
-                            else if(receive.equals("NO_POSSIBLE")) {
-                                System.out.println("Não é possível efectuar a viagem no intervalo de datas indicado.");
-                            } else {
-                                String[] msg = receive.split("/");
-                                System.out.println("A viagem ficou reservada para dia " + msg[1] + " . O código da reserva é " + msg[0] + ".");
-                            }
                     }).start();
+
 
 
 
@@ -270,12 +271,13 @@ public class Client {
 
                 case 5:
                     // user-> Cancelar reserva de uma viagem, indicando o código de reserva
-                    System.out.println("Indique o id da reserva que pretende cancelar:");
+                    System.out.println(Colors.ANSI_YELLOW + "Indique o id da reserva que pretende cancelar:" + Colors.ANSI_RESET);
                     int id = readOptionInt(1000,stdin);
                     send = Integer.toString(id);
 
                     fs = new Frame(Tag.CANCEL_FLIGHT,send.getBytes());
                     dm.send(fs);
+
 
 
                     Demultiplexer finalDm1 = dm;
@@ -290,12 +292,12 @@ public class Client {
                         }
 
                         if(receive.equals("CANCELED")){
-                            System.out.println("Reserva cancelada com sucesso");
+                            System.out.println(Colors.ANSI_GREEN + "Reserva cancelada com sucesso" + Colors.ANSI_RESET);
                         }else if (receive.equals("NOT_EXIST")){
-                            System.out.println("Não possui nenhuma reserva com o id indicado");
-                        } else {
-                            System.out.println("A Reserva já se encontra cancelada");
-                        }
+                            System.out.println(Colors.ANSI_RED + "Não possui nenhuma reserva com o id indicado" + Colors.ANSI_RESET);
+                            } else {
+                                System.out.println(Colors.ANSI_RED + "A Reserva já se encontra cancelada" + Colors.ANSI_RESET);
+                            }
                     }).start();
 
 
@@ -313,7 +315,7 @@ public class Client {
 
                     receiveMessage = new String(dm.receive(Tag.GET_FLIGHTS_LIST));
                     if (receiveMessage.equals("NO_FLIGHTS")) {
-                        System.out.println("Não existem voos.");
+                        System.out.println(Colors.ANSI_RED + "Não existem voos." + Colors.ANSI_RESET);
                     } else {
                         String[] flights = receiveMessage.split("/");
                         System.out.println("\nLista de todos os voos existentes: ");

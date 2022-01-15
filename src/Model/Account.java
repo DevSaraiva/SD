@@ -47,6 +47,14 @@ public class Account implements Serializable {
         this.password = password;
     }
 
+    public Map<String, Reservation> getReseervations() {
+        Map<String,Reservation> res = new HashMap<>();
+        for (Map.Entry<String,Reservation> entry : this.reservations.entrySet()){
+            res.put(entry.getKey(),entry.getValue().clone());
+        }
+        return res;
+    }
+
     public void addReservation (String id , Reservation r) {
         reservations.put(id,r);
     }

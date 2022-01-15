@@ -506,7 +506,16 @@ public class Info {
 
             Account acc = this.accountsMap.get(idUser);
             acc.cancelReservation(codReservation);
-            
+
+            if (acc.getReseervations().containsKey(codReservation)){
+                Reservation r = acc.getReseervations().get(codReservation);
+                List<String> route = r.getRoute();
+                for (int i = 0; i < route.size()-1; i++) {
+                    List<Flight> flightList = this.flightsMap.get(route.get(i));
+                    Flight f = getFlightFromList(flightList,route.get(i+1));
+                    f.reduceOccupationDate(r.getDay());
+                }
+            }
         } finally {
             wl.unlock();
         }
