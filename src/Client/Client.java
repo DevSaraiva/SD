@@ -155,6 +155,7 @@ public class Client {
 
 
             Frame fs = null;
+            Frame fStressed = null;
             String sendMessage;
             String receiveMessage;
             Frame fr = null; // frame received
@@ -234,32 +235,51 @@ public class Client {
                     String limitInfDate = startDate.getDayOfMonth() + "-" + startDate.getMonthValue() + "-" + startDate.getYear();
                     String limitSupDate = endDate.getDayOfMonth() + "-" + endDate.getMonthValue() + "-" + endDate.getYear();
                     send = route + "/" +  limitInfDate + "/" + limitSupDate;
+
+
+                    fStressed = new Frame(Tag.STRESSED,new byte[0]);
+                    dm.send(fStressed);
+
+                    receiveMessage = new String(dm.receive(Tag.STRESSED));
+
                     fs = new Frame(Tag.BOOK_TRIP,send.getBytes());
                     dm.send(fs);
 
 
-                    Demultiplexer finalDm = dm;
+                    if (receiveMessage.equals("STRESSED")) {
+                        Demultiplexer finalDm = dm;
 
-                    new Thread(() -> {
+                        new Thread(() -> {
+
                             String receive = null;
 
-                            try{
+                            try {
                                 receive = new String(finalDm.receive(Tag.BOOK_TRIP));
-                            }catch (Exception e){
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
 
+                            if (receive.equals("ROUTE_NOT_POSSIBLE")) {
+                                System.out.println(Colors.ANSI_RED + "O percurso que introduziu não é possivel." + Colors.ANSI_RESET);
+                            } else if (receive.equals("NO_POSSIBLE")) {
+                                System.out.println(Colors.ANSI_RED + "Não é possível efectuar a viagem no intervalo de datas indicado." + Colors.ANSI_RESET);
+                            } else {
+                                String[] msg = receive.split("/");
+                                System.out.println(Colors.ANSI_GREEN + "A viagem ficou reservada para dia " + msg[1] + " . O código da reserva é " + msg[0] + "." + Colors.ANSI_RESET);
+                            }
+
+                        }).start();
+                    } else {
+                        String receive = new String(dm.receive(Tag.BOOK_TRIP));
                         if (receive.equals("ROUTE_NOT_POSSIBLE")) {
                             System.out.println(Colors.ANSI_RED + "O percurso que introduziu não é possivel." + Colors.ANSI_RESET);
-                        }
-                        else if(receive.equals("NO_POSSIBLE")) {
+                        } else if (receive.equals("NO_POSSIBLE")) {
                             System.out.println(Colors.ANSI_RED + "Não é possível efectuar a viagem no intervalo de datas indicado." + Colors.ANSI_RESET);
                         } else {
                             String[] msg = receive.split("/");
                             System.out.println(Colors.ANSI_GREEN + "A viagem ficou reservada para dia " + msg[1] + " . O código da reserva é " + msg[0] + "." + Colors.ANSI_RESET);
                         }
-
-                    }).start();
+                    }
 
 
 
@@ -275,30 +295,47 @@ public class Client {
                     int id = readOptionInt(1000,stdin);
                     send = Integer.toString(id);
 
+
+                    fStressed = new Frame(Tag.STRESSED,new byte[0]);
+                    dm.send(fStressed);
+
+                    receiveMessage = new String(dm.receive(Tag.STRESSED));
+
+
                     fs = new Frame(Tag.CANCEL_FLIGHT,send.getBytes());
                     dm.send(fs);
 
+                    if (receiveMessage.equals("STRESSED")) {
 
+                        Demultiplexer finalDm1 = dm;
 
-                    Demultiplexer finalDm1 = dm;
+                        new Thread(() -> {
+                            String receive = null;
 
-                    new Thread(() -> {
-                        String receive = null;
+                            try {
+                                receive = new String(finalDm1.receive(Tag.CANCEL_FLIGHT));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
 
-                        try{
-                            receive = new String(finalDm1.receive(Tag.CANCEL_FLIGHT));
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-
-                        if(receive.equals("CANCELED")){
-                            System.out.println(Colors.ANSI_GREEN + "Reserva cancelada com sucesso" + Colors.ANSI_RESET);
-                        }else if (receive.equals("NOT_EXIST")){
-                            System.out.println(Colors.ANSI_RED + "Não possui nenhuma reserva com o id indicado" + Colors.ANSI_RESET);
+                            if (receive.equals("CANCELED")) {
+                                System.out.println(Colors.ANSI_GREEN + "Reserva cancelada com sucesso" + Colors.ANSI_RESET);
+                            } else if (receive.equals("NOT_EXIST")) {
+                                System.out.println(Colors.ANSI_RED + "Não possui nenhuma reserva com o id indicado" + Colors.ANSI_RESET);
                             } else {
                                 System.out.println(Colors.ANSI_RED + "A Reserva já se encontra cancelada" + Colors.ANSI_RESET);
                             }
-                    }).start();
+                        }).start();
+                    }else {
+                        String receive = new String(dm.receive(Tag.CANCEL_FLIGHT));
+                        if (receive.equals("CANCELED")) {
+                            System.out.println(Colors.ANSI_GREEN + "Reserva cancelada com sucesso" + Colors.ANSI_RESET);
+                        } else if (receive.equals("NOT_EXIST")) {
+                            System.out.println(Colors.ANSI_RED + "Não possui nenhuma reserva com o id indicado" + Colors.ANSI_RESET);
+                        } else {
+                            System.out.println(Colors.ANSI_RED + "A Reserva já se encontra cancelada" + Colors.ANSI_RESET);
+                        }
+                    }
 
 
 

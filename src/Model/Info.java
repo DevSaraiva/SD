@@ -32,6 +32,7 @@ public class Info {
     private ReentrantReadWriteLock l;
     private ReentrantReadWriteLock.ReadLock rl;
     private ReentrantReadWriteLock.WriteLock wl;
+    private int doingRequest;
 
 
     public Info(Server server) {
@@ -46,6 +47,7 @@ public class Info {
         this.l = new ReentrantReadWriteLock();
         this.wl = l.writeLock();
         this.rl = l.readLock();
+        this.doingRequest = 0;
 
         // MÉTODOS PARA A PERSISTENCIA DE DADOS
         try {
@@ -112,6 +114,35 @@ public class Info {
         }
     }
 
+    public void increaseDoingRequest() {
+        this.wl.lock();
+
+        try {
+            this.doingRequest++;
+        } finally {
+            this.wl.unlock();
+        }
+    }
+
+    public void decreaseDoingRequest() {
+        this.wl.lock();
+
+        try {
+            this.doingRequest--;
+        } finally {
+            this.wl.unlock();
+        }
+    }
+
+    public int getDoingRequest() {
+        this.rl.lock();
+        try {
+            return doingRequest;
+        } finally {
+            this.rl.unlock();
+        }
+
+    }
 
     public int getUsersLogged() {
         this.rl.lock();

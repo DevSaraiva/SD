@@ -21,6 +21,7 @@ public class ServerConnection implements Runnable {
     private String username;
     private boolean loggedIn;
     private boolean online;
+    private boolean stressed;
 
     public ServerConnection(TaggedConnection tCG, Info info) {
         this.tC = tCG;
@@ -28,6 +29,7 @@ public class ServerConnection implements Runnable {
         this.username = null;
         this.loggedIn = false;
         this.online = true;
+        this.stressed = false;
     }
 
     @Override
@@ -81,6 +83,10 @@ public class ServerConnection implements Runnable {
 
                         case GET_ALL_ROUTES:
                             getAllRoutes(frame);
+                            break;
+
+                        case STRESSED:
+                            getStressed();
                             break;
 
 
@@ -226,6 +232,13 @@ public class ServerConnection implements Runnable {
     }
 
     public void bookTrip (Frame frame) throws IOException {
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
         String receiveMessage = new String(frame.data); // recebe route/dataInicio/DataFim
         String[] rm = receiveMessage.split("/");
         String[] citys = rm[0].split("-");
@@ -248,10 +261,19 @@ public class ServerConnection implements Runnable {
 
 
         tC.send(new Frame(Tag.BOOK_TRIP,codReserve.getBytes()));
+
+        this.info.decreaseDoingRequest();
     }
 
 
     public void cancelFlight(Frame frame) throws IOException {
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
         String idReservation = new String(frame.data);
 
 
@@ -268,7 +290,10 @@ public class ServerConnection implements Runnable {
             send = "ALREADY_EXIST";
             System.out.println("Reserva " + idReservation + " já estava cancelado");
         }
+
         tC.send(new Frame(Tag.CANCEL_FLIGHT,send.getBytes()));
+
+        this.info.decreaseDoingRequest();
     }
 
     public void getFLYlist() throws IOException {
@@ -314,5 +339,19 @@ public class ServerConnection implements Runnable {
             send = "ORIGIN_NOT_EXIST";
         }
         tC.send(new Frame(Tag.GET_ALL_ROUTES,send.getBytes()));
+    }
+
+
+
+    public void getStressed() throws IOException {
+        String res = null;
+        if (this.info.getDoingRequest() >= 1) {
+            res = "STRESSED";
+            this.info.increaseDoingRequest();
+        } else {
+            res = "EMPTY";
+            this.info.increaseDoingRequest();
+        }
+        tC.send(new Frame(Tag.STRESSED,res.getBytes()));
     }
 }
