@@ -114,6 +114,7 @@ public class ServerConnection implements Runnable {
             res = "REGISTADO";
             this.username = username;
             this.loggedIn = true;
+            this.info.increaseUsersLogged();
 
             System.out.println("Utilizador " + username + "registado");
 
@@ -148,6 +149,9 @@ public class ServerConnection implements Runnable {
             this.loggedIn = true;
             this.info.increaseUsersLogged();
             System.out.println("User " + username + " logged");
+
+
+            System.out.println(this.info.getUsersLogged());
         }
 
         tC.send(new Frame(Tag.LOGIN,res.getBytes()));
@@ -161,6 +165,8 @@ public class ServerConnection implements Runnable {
         this.online = false;
         this.info.wakeup();
         System.out.println("User " + username + " logout");
+
+        System.out.println(this.info.getUsersLogged());
     }
 
 

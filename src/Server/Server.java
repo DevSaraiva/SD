@@ -53,7 +53,7 @@ public class Server {
 
      try{
          while(info.getUsersLogged() != 0){
-
+             System.out.println("awaiting");
              s.c.await();
          }
      }
