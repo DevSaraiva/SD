@@ -79,6 +79,13 @@ public class Flight implements Serializable {
         }
     }
 
-
+    // utilizada quando cancela reserva entao tira 1 de ocupaçao
+    public void reduceOccupationDate(LocalDate date) {
+        int occ = this.occupations.get(date) - 1;
+        this.setOccupationDate(date,occ);
+        if (this.occupations.get(date) == 0) { // se tiver 0 ocupacoes remove a data do map
+            this.occupations.remove(date);
+        }
+    }
 
 }

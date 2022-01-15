@@ -18,6 +18,13 @@ public class Reservation {
         this.cancel = false;
     }
 
+    public Reservation( Reservation r) {
+        this.idReservation = r.getIdReservation();
+        this.day = r.getDay();
+        this.route = r.getRoute();
+        this.cancel = r.isCancel();
+    }
+
     public String getIdReservation() {
         return this.idReservation;
     }
@@ -48,5 +55,11 @@ public class Reservation {
 
     public void setCancel(boolean cancel) {
         this.cancel = cancel;
+    }
+
+
+    public Reservation clone() {
+        Reservation r = new Reservation(this);
+        return r;
     }
 }

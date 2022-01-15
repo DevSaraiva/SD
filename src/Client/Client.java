@@ -245,7 +245,7 @@ public class Client {
                         System.out.println("Não é possível efectuar a viagem no intervalo de datas indicado.");
                     } else {
                         String[] msg = receiveMessage.split("/");
-                        System.out.println("A viagem ficoun reservada para dia " + msg[1] + " . O código da reserva é " + msg[0] + ".");
+                        System.out.println("A viagem ficou reservada para dia " + msg[1] + " . O código da reserva é " + msg[0] + ".");
                     }
 
                     break;
