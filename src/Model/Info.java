@@ -479,11 +479,14 @@ public class Info {
                 f.setOccupationDate(date, newOcupation);
             }
 
+
             String idReservation = Integer.toString(idCounterReservations);
             idCounterReservations++;
             Reservation res = new Reservation(idReservation, date, route);
             Account acc = this.accountsMap.get(acountId);
             acc.addReservation(idReservation, res);
+
+
             return idReservation;
 
         } finally {
@@ -503,7 +506,7 @@ public class Info {
 
             Account acc = this.accountsMap.get(idUser);
             acc.cancelReservation(codReservation);
-
+            
         } finally {
             wl.unlock();
         }

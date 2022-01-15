@@ -177,7 +177,7 @@ public class Client {
 
                     dm.send(new Frame(Tag.INSERT_FLY,sendMessage.getBytes()));
 
-                    receiveMessage = new String(dm.receive(Tag.INSERT_FLY)); // FIXME mudei aqui para ser Tag.INSERT_FLY (tava login)
+                    receiveMessage = new String(dm.receive(Tag.INSERT_FLY));
 
                     if(receiveMessage.equals("INSERTED")){
                         System.out.println("Voo adicionado com sucesso");
@@ -237,16 +237,34 @@ public class Client {
                     fs = new Frame(Tag.BOOK_TRIP,send.getBytes());
                     dm.send(fs);
 
-                    receiveMessage = new String(dm.receive(Tag.BOOK_TRIP));
-                    if (receiveMessage.equals("ROUTE_NOT_POSSIBLE")) {
-                        System.out.println("O percurso que introduziu não é possivel.");
-                    }
-                    else if(receiveMessage.equals("NO_POSSIBLE")) {
-                        System.out.println("Não é possível efectuar a viagem no intervalo de datas indicado.");
-                    } else {
-                        String[] msg = receiveMessage.split("/");
-                        System.out.println("A viagem ficoun reservada para dia " + msg[1] + " . O código da reserva é " + msg[0] + ".");
-                    }
+
+                    Demultiplexer finalDm = dm;
+
+                    new Thread(() -> {
+                            String receive = null;
+
+                            try{
+                                receive = new String(finalDm.receive(Tag.BOOK_TRIP));
+                            }catch (Exception e){
+                                e.printStackTrace();
+                            }
+
+
+                            if (receive.equals("ROUTE_NOT_POSSIBLE")) {
+                                System.out.println("O percurso que introduziu não é possivel.");
+                            }
+                            else if(receive.equals("NO_POSSIBLE")) {
+                                System.out.println("Não é possível efectuar a viagem no intervalo de datas indicado.");
+                            } else {
+                                String[] msg = receive.split("/");
+                                System.out.println("A viagem ficou reservada para dia " + msg[1] + " . O código da reserva é " + msg[0] + ".");
+                            }
+                    }).start();
+
+
+
+
+
 
                     break;
 
@@ -259,15 +277,31 @@ public class Client {
                     fs = new Frame(Tag.CANCEL_FLIGHT,send.getBytes());
                     dm.send(fs);
 
-                    receiveMessage = new String(dm.receive(Tag.CANCEL_FLIGHT));
 
-                    if(receiveMessage.equals("CANCELED")){
-                        System.out.println("Reserva cancelada com sucesso");
-                    }else if (receiveMessage.equals("NOT_EXIST")){
-                        System.out.println("Não possui nenhuma reserva com o id indicado");
+                    Demultiplexer finalDm1 = dm;
+
+                    new Thread(() -> {
+                        String receive = null;
+
+                        try{
+                            receive = new String(finalDm1.receive(Tag.CANCEL_FLIGHT));
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+
+                        if(receive.equals("CANCELED")){
+                            System.out.println("Reserva cancelada com sucesso");
+                        }else if (receive.equals("NOT_EXIST")){
+                            System.out.println("Não possui nenhuma reserva com o id indicado");
                         } else {
                             System.out.println("A Reserva já se encontra cancelada");
                         }
+                    }).start();
+
+
+
+
+
 
                     break;
 
