@@ -29,6 +29,13 @@ Porto -> Paris -> Capacidade -> 10
 Lisboa -> Toquio -> Capacidade -> 50
 Madrid -> Roma -> Capacidade -> 70
 Amesterdão -> Toronto -> 1
+Porto -> Lisboa -> Capacidade 100
+Paris -> Madrid -> Capcidade 50
+Roma -> Amesterdão -> Capacidade 70
+
+Reservas:
+
+
 
 
 

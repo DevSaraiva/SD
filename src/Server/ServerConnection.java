@@ -203,7 +203,7 @@ public class ServerConnection implements Runnable {
 
         tC.send(new Frame(Tag.CLOSE_DAY,res.getBytes()));
 
-        System.out.println("Dia " + dateDMA[0] + "/" + dateDMA[1] + "/" + dateDMA[2] + "fechado");
+        System.out.println("Dia " + dateDMA[0] + "/" + dateDMA[1] + "/" + dateDMA[2] + " fechado");
 
     }
 

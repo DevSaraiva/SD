@@ -191,6 +191,8 @@ public class Client {
                 case 2:
                     // admin-> Encerramento de um dia, impedindo novas reservas e cancelamentos de reservas para esse mesmo dia
 
+
+                    System.out.println("Insira a data do dia a encerrar");
                     LocalDate date = readDate(stdin);
                     send = date.getDayOfMonth() + "-" + date.getMonthValue() + "-" + date.getYear();
                     fs = new Frame(Tag.CLOSE_DAY,send.getBytes());
