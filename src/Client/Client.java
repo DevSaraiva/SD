@@ -400,7 +400,7 @@ public class Client {
     public static int readOptionInt(int opcoes, BufferedReader stdin) {
         int op = -1;
 
-            System.out.print("Opção: ");
+            System.out.print(Colors.ANSI_YELLOW + "Opção: " + Colors.ANSI_RESET);
             try {
                 String line = stdin.readLine();
 
