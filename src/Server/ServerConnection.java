@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 
+import Exceptions.OriginNotFoundOnMapException;
 import Exceptions.ReservationAlreadyCanceledException;
 import Exceptions.ReservationNotExistException;
 import Model.*;
@@ -76,6 +77,10 @@ public class ServerConnection implements Runnable {
 
                         case GET_FLIGHTS_LIST:
                             getFLYlist();
+                            break;
+
+                        case GET_ALL_ROUTES:
+                            getAllRoutes(frame);
                             break;
 
 
@@ -279,4 +284,27 @@ public class ServerConnection implements Runnable {
 
     }
 
+
+    public void getAllRoutes(Frame frame) throws IOException {
+        String receiveMessage = new String(frame.data);
+        String[] rm = receiveMessage.split("/");
+        String send = null;
+        try {
+            StringBuilder res = new StringBuilder();
+            List<List<String>> resList = this.info.percursosComEscalas(rm[0],rm[1]);
+            System.out.println(resList);
+            for (List<String> ls : resList) {
+                for (String s : ls) {
+                    res.append(s).append("->");
+                }
+                //res.delete(res.length()-2,res.length()-1);
+                res.append("/");
+            }
+            send = res.toString();
+            System.out.println(send);
+        } catch (OriginNotFoundOnMapException e) {
+            send = "ORIGIN_NOT_EXIST";
+        }
+        tC.send(new Frame(Tag.GET_ALL_ROUTES,send.getBytes()));
+    }
 }

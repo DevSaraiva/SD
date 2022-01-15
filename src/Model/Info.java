@@ -548,14 +548,13 @@ public class Info {
             if (!flightsMap.containsKey(origin)) {
                 throw new OriginNotFoundOnMapException(origin);
             }
-            List<Flight> flightsFromOrigin = flightsMap.get(origin);        //TODO: criar a exceção de quando nao consegue dar get
+            List<Flight> flightsFromOrigin = flightsMap.get(origin);       
             List<String> subList = new ArrayList<>();
             Flight fl;
 
-            if ((fl = hasDestination(flightsFromOrigin, destination)) != null) {                  //se tem destino diretamente para o pretendido, adiciona à lista e dá logo return
+            if ((fl = hasDestination(flightsFromOrigin, destination)) != null) {//se tem destino diretamente para o pretendido, adiciona à lista e dá logo return
                 subList.add(fl.getDestination());
                 res.add(subList);
-                return res;
             } else {                                                                                  //caso nao tenha voo direto para o destino, pegar nos destinos desse e calcular se há algum que vá para o destino final
                 for (Flight f : flightsFromOrigin) {
                     List<Flight> flightsFromItermediate = flightsMap.get(f.getDestination());

@@ -51,7 +51,7 @@ public class Client {
 
             int optionAuthenticated = -1;
             while (optionAuthenticated == -1) { // enquanto a opcao introduzida for invalida
-                System.out.println("\nInsira o valor correspondente à operação desejada: \n");
+                System.out.println("\nInsira o valor correspondente à operação desejada: ");
                 optionAuthenticated = readOptionInt(2, stdin);
             }
             String username = null;
@@ -77,10 +77,10 @@ public class Client {
                     res = new String(dm.receive(Tag.SIGNUP));
 
                     if(res.equals("REGISTADO")){
-                        System.out.println("Conta Criada com sucesso.");
+                        System.out.println("Conta Criada com sucesso.\n");
                         authenticated = true;
                     }else{
-                        System.out.println("O username já existe.");
+                        System.out.println("O username já existe.\n");
                     }
 
                     break;
@@ -139,15 +139,16 @@ public class Client {
                         + "serviço a escolha de uma data em que a viagem seja possível\n"
                         + "2) Cancelar reserva de uma viagem, indicando o código de reserva \n"
                         + "3) Oter lista de todas os voos existentes (lista de pares origem → destino) \n"
+                        + "4) Obtenção de uma lista com todos os percursos possíveis para viajar entre uma origem e um destino, limitados a duas escalas (três voos) \n"
                         +"\n"
                         + "0) Sair.\n");
 
                 while (option == -1) { // enquanto a opcao introduzida for invalida
                     System.out.println("\nInsira o valor correspondente à operação desejada: \n");
-                    option = readOptionInt(3, stdin);
+                    option = readOptionInt(4, stdin);
                 }
                 if (option != 0) { // se for o sair nao soma 3
-                    option = option + 3; // 1 2 3 passa a ser opcoes 4 5 6
+                    option = option + 3; // 1 2 3 4 passa a ser opcoes 4 5 6 7
                 }
             }
 
@@ -169,7 +170,7 @@ public class Client {
                     String destination = stdin.readLine();
                     int capacity = -1;
                     while (capacity == -1) { // enquanto a opcao introduzida for invalida
-                        System.out.println("\nInsira o valor correspondente à capacidade: \n");
+                        System.out.println("\nInsira o valor correspondente à capacidade: ");
                         capacity = readOptionInt(1000,stdin);
                     }
                     sendMessage = origin + "/" + destination + "/" + capacity;
@@ -288,6 +289,22 @@ public class Client {
 
                     break;
 
+                case 7:
+                   // Obtenção de uma lista com todos os percursos possíveis para viajar entre uma origem e um destino, limitados a duas escalas (três voos)
+                    System.out.println("Introduza a origem");
+                    String originCity = stdin.readLine();
+                    System.out.println("Introduza o destino");
+                    String destinationCity = stdin.readLine();
+                    send = originCity + "/" + destinationCity;
+                    fs = new Frame(Tag.GET_ALL_ROUTES,send.getBytes());
+                    dm.send(fs);
+
+                    receiveMessage = new String(dm.receive(Tag.GET_ALL_ROUTES));
+                    String[] resList = receiveMessage.split("/");
+                    for (String routeP : resList) {
+                        System.out.println(routeP);
+                    }
+                    break;
 
                 case 0:
                     System.out.println("Até à próxima... :)");
