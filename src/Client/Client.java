@@ -293,9 +293,9 @@ public class Client {
 
                 case 7:
                    // Obtenção de uma lista com todos os percursos possíveis para viajar entre uma origem e um destino, limitados a duas escalas (três voos)
-                    System.out.println("Introduza a origem");
+                    System.out.println(Colors.ANSI_YELLOW + "Introduza a origem" + Colors.ANSI_RESET);
                     String originCity = stdin.readLine();
-                    System.out.println("Introduza o destino");
+                    System.out.println(Colors.ANSI_YELLOW + "Introduza o destino" + Colors.ANSI_RESET);
                     String destinationCity = stdin.readLine();
                     send = originCity + "/" + destinationCity;
                     fs = new Frame(Tag.GET_ALL_ROUTES,send.getBytes());
@@ -303,9 +303,9 @@ public class Client {
 
                     receiveMessage = new String(dm.receive(Tag.GET_ALL_ROUTES));
                     if (receiveMessage.equals("ORIGIN_NOT_EXIST")) {
-                        System.out.println("Não existe nenhum voo partindo da origem indicada.");
+                        System.out.println(Colors.ANSI_RED + "Não existe nenhum voo partindo da origem indicada." + Colors.ANSI_RESET);
                     } else if (receiveMessage.equals("ROUTE_2SCALES_NOT_POSSIBLE")) {
-                        System.out.println("Não existe nenhum percurso para viajar entre a origem e o destino indicados com menos de duas escalas (três voos).");
+                        System.out.println(Colors.ANSI_RED + "Não existe nenhum percurso para viajar entre a origem e o destino indicados com menos de duas escalas (três voos)." + Colors.ANSI_RESET);
                         } else {
                             String[] resList = receiveMessage.split("/");
                             for (String routeP : resList) {
@@ -315,7 +315,7 @@ public class Client {
                     break;
 
                 case 0:
-                    System.out.println("Até à próxima... :)");
+                    System.out.println(Colors.ANSI_BLUE + "Até à próxima... :)" + Colors.ANSI_RESET);
                     fs = new Frame(Tag.LOGOUT,new byte[0]);
                     dm.send(fs);
                     exit = true;
@@ -337,11 +337,11 @@ public class Client {
             }
             if (opcoes == 1000) { // 1000 é especifico para ilimitado e  neste caso so verifica se é > 0
                 if (op < 0) {
-                    System.out.println("Opção Inválida!!!");
+                    System.out.println(Colors.ANSI_RED + "Opção Inválida!!!" + Colors.ANSI_RESET);
                 }
             } else {
                 if (op < 0 || op > opcoes) {
-                    System.out.println("Opção Inválida!!!");
+                    System.out.println(Colors.ANSI_RED + "Opção Inválida!!!" + Colors.ANSI_RESET);
                     op = -1;
                 }
             }
@@ -364,10 +364,10 @@ public class Client {
             if (date_parse.length == 3) {
                 date = verifyDate(date_parse[0],date_parse[1],date_parse[2]);
             } else {
-                System.out.println("Data inserida está no formato inválido. Certifique-se que introduz a data no formato Dia/Mês/Ano.");
+                System.out.println(Colors.ANSI_RED + "Data inserida está no formato inválido. Certifique-se que introduz a data no formato Dia/Mês/Ano." + Colors.ANSI_RESET);
             }
             if (date == null) {
-                System.out.println("\nInsira o dia que pretende no formato D/M/A");
+                System.out.println(Colors.ANSI_YELLOW + "\nInsira o dia que pretende no formato D/M/A" + Colors.ANSI_RESET);
             }
 
         }
@@ -381,7 +381,7 @@ public class Client {
             monthInt = Integer.parseInt(month);
             yearInt = Integer.parseInt(year);
         } catch (NumberFormatException e){
-            System.out.println("Introduziu alguns dos valores Dia/Mês/Ano têm de ser inteiros!");
+            System.out.println(Colors.ANSI_RED + "Introduziu alguns dos valores Dia/Mês/Ano têm de ser inteiros!" + Colors.ANSI_RESET);
             return null;
         }
 
@@ -389,7 +389,7 @@ public class Client {
         try {
             res = LocalDate.of(yearInt,monthInt,dayInt);
         } catch (DateTimeException e) {
-            System.out.println("A Data que inseriu não é válida.");
+            System.out.println(Colors.ANSI_RED + "A Data que inseriu não é válida." + Colors.ANSI_RESET);
         }
 
         return res;
