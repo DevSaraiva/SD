@@ -106,7 +106,7 @@ public class Client {
                             authenticated = true;
                             admin = true;
                         }else{
-                            if (res.equals("NOTFOUND")) System.out.println("Username não existe");
+                            if (res.equals("NOTFOUND")) System.out.println(Colors.ANSI_RED + "Username não existe" + Colors.ANSI_RESET);
                             else System.out.println(Colors.ANSI_RED + "Palavra-Passe errada" + Colors.ANSI_RESET);
                         }
                     }
