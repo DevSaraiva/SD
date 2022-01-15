@@ -302,10 +302,16 @@ public class Client {
                     dm.send(fs);
 
                     receiveMessage = new String(dm.receive(Tag.GET_ALL_ROUTES));
-                    String[] resList = receiveMessage.split("/");
-                    for (String routeP : resList) {
-                        System.out.println(routeP);
-                    }
+                    if (receiveMessage.equals("ORIGIN_NOT_EXIST")) {
+                        System.out.println("Não existe nenhum voo partindo da origem indicada.");
+                    } else if (receiveMessage.equals("ROUTE_2SCALES_NOT_POSSIBLE")) {
+                        System.out.println("Não existe nenhum percurso para viajar entre a origem e o destino indicados com menos de duas escalas (três voos).");
+                        } else {
+                            String[] resList = receiveMessage.split("/");
+                            for (String routeP : resList) {
+                                System.out.println(routeP);
+                            }
+                        }
                     break;
 
                 case 0:

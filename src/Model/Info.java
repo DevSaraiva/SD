@@ -544,42 +544,58 @@ public class Info {
 
         try {
 
+
+
             List<List<String>> res = new ArrayList<>();
             if (!flightsMap.containsKey(origin)) {
                 throw new OriginNotFoundOnMapException(origin);
             }
-            List<Flight> flightsFromOrigin = flightsMap.get(origin);       
-            List<String> subList = new ArrayList<>();
+            List<Flight> flightsFromOrigin = flightsMap.get(origin);
             Flight fl;
+            List<String> subList = new ArrayList<>();
+            subList.add(origin);
 
-            if ((fl = hasDestination(flightsFromOrigin, destination)) != null) {//se tem destino diretamente para o pretendido, adiciona à lista e dá logo return
-                subList.add(fl.getDestination());
-                res.add(subList);
-            } else {                                                                                  //caso nao tenha voo direto para o destino, pegar nos destinos desse e calcular se há algum que vá para o destino final
+
+                if ((fl = hasDestination(flightsFromOrigin, destination)) != null) {//se tem destino diretamente para o pretendido, adiciona à lista e dá logo return
+                    List<String> destination0Scale = new ArrayList<>(subList);
+                    destination0Scale.add(fl.getDestination());
+                    res.add(destination0Scale);
+                    flightsFromOrigin = flightsFromOrigin.stream().filter(f4 -> !f4.getDestination().equals(destination)).collect(Collectors.toList());
+                }                                                                                 //caso nao tenha voo direto para o destino, pegar nos destinos desse e calcular se há algum que vá para o destino final
+
                 for (Flight f : flightsFromOrigin) {
-                    List<Flight> flightsFromItermediate = flightsMap.get(f.getDestination());
-                    //subList.add(fl.getDestination());
-                    if ((fl = hasDestination(flightsFromItermediate, destination)) != null) {          //se tem destino da primeira escala para o pretendido, adicionamos essa escala à resposta e devolvemos
-                        subList.add(f.getDestination());
-                        res.add(subList);
-                        return res;
-                    } else {                                                                          //caso contrario, vamos verificar se há uma segunda escala que nos leve para esse destino
-                        subList.add(f.getDestination()); //adicionar o anterior (primeira escala) à resposta
-                        for (Flight f2 : flightsFromItermediate) {                                    //procurar se há uma segunda escala que nos leve ao destino, caso conntrario retornamos null pq atingimos o nº maximo de escalas
-                            List<Flight> flightToDestination = flightsMap.get(f2.getDestination());
-                            if (hasDestination(flightToDestination, destination) != null) {
-                                subList.add(f2.getDestination());
-                                res.add(subList);
-                                break;
-                            } else {
-                                return null;
+                    System.out.println("destination " + f.getDestination());
+                    if (flightsMap.containsKey(f.getDestination())) {
+                        List<Flight> flightsFromItermediate = flightsMap.get(f.getDestination());
+                        if ((fl = hasDestination(flightsFromItermediate, destination)) != null) {          //se tem destino da primeira escala para o pretendido, adicionamos essa escala à resposta e devolvemos
+                            List<String> destination1Scale = new ArrayList<>(subList);
+                            destination1Scale.add(f.getDestination());
+                            destination1Scale.add(destination);
+                            res.add(destination1Scale);
+                            flightsFromItermediate = flightsFromItermediate.stream().filter(f5 -> !f5.getDestination().equals(destination)).collect(Collectors.toList());
+                        }
+
+                        //caso contrario, vamos verificar se há uma segunda escala que nos leve para esse destino
+
+                        for (Flight f2 : flightsFromItermediate) {//procurar se há uma segunda escala que nos leve ao destino, caso conntrario retornamos null pq atingimos o nº maximo de escalas
+                            if (flightsMap.containsKey(f2.getDestination())) {
+                                List<Flight> flightToDestination = flightsMap.get(f2.getDestination());
+                                if (hasDestination(flightToDestination, destination) != null) {
+                                    List<String> destination2Scale = new ArrayList<>(subList);
+                                    destination2Scale.add(f.getDestination());
+                                    destination2Scale.add(f2.getDestination());
+                                    destination2Scale.add(destination);
+                                    res.add(destination2Scale);
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            return null;
+
+
+
+            return res;
 
         } finally {
             wl.unlock();

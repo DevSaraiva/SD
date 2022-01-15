@@ -292,16 +292,18 @@ public class ServerConnection implements Runnable {
         try {
             StringBuilder res = new StringBuilder();
             List<List<String>> resList = this.info.percursosComEscalas(rm[0],rm[1]);
-            System.out.println(resList);
-            for (List<String> ls : resList) {
-                for (String s : ls) {
-                    res.append(s).append("->");
+            if (resList.isEmpty()) send = "ROUTE_2SCALES_NOT_POSSIBLE";
+            else {
+                System.out.println(resList);
+                for (List<String> ls : resList) {
+                    for (String s : ls) {
+                        res.append(s).append("->");
+                    }
+                    res.delete(res.length()-2,res.length());
+                    res.append("/");
+                    send = res.toString();
                 }
-                //res.delete(res.length()-2,res.length()-1);
-                res.append("/");
             }
-            send = res.toString();
-            System.out.println(send);
         } catch (OriginNotFoundOnMapException e) {
             send = "ORIGIN_NOT_EXIST";
         }
