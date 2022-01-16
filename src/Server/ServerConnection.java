@@ -88,7 +88,9 @@ public class ServerConnection implements Runnable {
                         case STRESSED:
                             getStressed();
                             break;
-
+                        case RESERVATIONS:
+                            getReservations();
+                            break;
 
                         default:
                             break;
@@ -232,11 +234,13 @@ public class ServerConnection implements Runnable {
     }
 
     public void bookTrip (Frame frame) throws IOException {
-        try {
+       /* try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        */
 
 
         String receiveMessage = new String(frame.data); // recebe route/dataInicio/DataFim
@@ -267,11 +271,14 @@ public class ServerConnection implements Runnable {
 
 
     public void cancelFlight(Frame frame) throws IOException {
-        try {
+       /* try {
+
             Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        */
 
 
         String idReservation = new String(frame.data);
@@ -354,4 +361,13 @@ public class ServerConnection implements Runnable {
         }
         tC.send(new Frame(Tag.STRESSED,res.getBytes()));
     }
+
+
+
+    public void getReservations() throws IOException {
+
+        tC.send(new Frame(Tag.RESERVATIONS,this.info.getReservations(this.username).getBytes()));
+    }
+
+
 }

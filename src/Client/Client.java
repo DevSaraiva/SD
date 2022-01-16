@@ -140,15 +140,16 @@ public class Client {
                         + "2) Cancelar reserva de uma viagem, indicando o código de reserva \n"
                         + "3) Oter lista de todas os voos existentes (lista de pares origem → destino) \n"
                         + "4) Obtenção de uma lista com todos os percursos possíveis para viajar entre uma origem e um destino, limitados a duas escalas (três voos) \n"
+                        + "5) Obtenção de uma lista com todas as reservas\n"
                         +"\n"
                         + "0) Sair.\n");
 
                 while (option == -1) { // enquanto a opcao introduzida for invalida
                     System.out.println(Colors.ANSI_YELLOW + "\nInsira o valor correspondente à operação desejada: \n" + Colors.ANSI_RESET);
-                    option = readOptionInt(4, stdin);
+                    option = readOptionInt(5, stdin);
                 }
                 if (option != 0) { // se for o sair nao soma 3
-                    option = option + 3; // 1 2 3 4 passa a ser opcoes 4 5 6 7
+                    option = option + 3; // 1 2 3 4 5 passa a ser opcoes 4 5 6 7 8
                 }
             }
 
@@ -282,11 +283,6 @@ public class Client {
                     }
 
 
-
-
-
-
-
                     break;
 
                 case 5:
@@ -386,6 +382,27 @@ public class Client {
                             }
                         }
                     break;
+
+
+                case 8:
+                    //obter as reservas
+
+                    fs = new Frame(Tag.RESERVATIONS,new byte[0]);
+                    dm.send(fs);
+
+
+                    receiveMessage = new String(dm.receive(Tag.RESERVATIONS));
+
+
+                    if(receiveMessage.equals("NULL")){
+                        System.out.println("Não existem reservas efetuadas");
+                    }else{
+                        System.out.println("IdReserva-Rota-Estado");
+                        System.out.println(receiveMessage);
+                    }
+
+                    break;
+
 
                 case 0:
                     System.out.println(Colors.ANSI_BLUE + "Até à próxima... :)" + Colors.ANSI_RESET);

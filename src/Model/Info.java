@@ -78,6 +78,38 @@ public class Info {
     }
 
 
+    public String getReservations(String username){
+
+
+        StringBuilder res = new StringBuilder();
+
+
+        Map<String,Reservation> reservations = this.accountsMap.get(username).reservations;
+
+        if(reservations.values().size() == 0){
+            return "NULL";
+        }else{
+            for(Reservation r : reservations.values()){
+
+                String reservation  =  r.getIdReservation() + " - " + r.getRoute().toString();
+
+                if(r.isCancel()){
+                    reservation = reservation + "-" + "Cancelada" + "\n";
+
+                }else {
+                    reservation = reservation + "-" + "Validada" + "\n";
+                }
+
+                res.append(reservation);
+            }
+        }
+
+        return res.toString();
+
+    }
+
+
+
     public void wakeup() {
         this.s.wakeup();
     }
