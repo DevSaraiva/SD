@@ -29,12 +29,13 @@ moises -> 12345
 ## Voos:  
 
 Porto -> Paris: Capacidade = 10  
-Lisboa -> Toquio: Capacidade = 50  
+Lisboa -> TOquio: Capacidade = 50  
 Madrid -> Roma: Capacidade = 70  
 Amesterdão -> Toronto: Capacidade = 1  
 Porto -> Lisboa: Capacidade = 100  
 Paris -> Madrid: Capcidade = 50  
-Roma -> Amesterdão: Capacidade = 70  
+Roma -> Amesterdão: Capacidade = 70
+TOquio -> Madrid: Capacidade = 50  
 
 
 ## Reservas:  
